@@ -7,6 +7,7 @@ import cn.iocoder.yudao.module.system.controller.admin.permission.vo.menu.MenuLi
 import cn.iocoder.yudao.module.system.controller.admin.permission.vo.menu.MenuRespVO;
 import cn.iocoder.yudao.module.system.controller.admin.permission.vo.menu.MenuSaveVO;
 import cn.iocoder.yudao.module.system.controller.admin.permission.vo.menu.MenuSimpleRespVO;
+import cn.iocoder.yudao.module.system.controller.admin.permission.vo.menu.MenuUpdateStatusVO;
 import cn.iocoder.yudao.module.system.dal.dataobject.permission.MenuDO;
 import cn.iocoder.yudao.module.system.service.permission.MenuService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -82,6 +83,14 @@ public class MenuController {
     public CommonResult<MenuRespVO> getMenu(Long id) {
         MenuDO menu = menuService.getMenu(id);
         return success(BeanUtils.toBean(menu, MenuRespVO.class));
+    }
+
+    @PutMapping("/updateAllStatus")
+    @Operation(summary = "修改所有子菜单")
+    @PreAuthorize("@ss.hasPermission('system:menu:update')")
+    public CommonResult<Boolean> updateAllStatus(@Valid @RequestBody MenuUpdateStatusVO updateReqVO) {
+        menuService.updateAllStatus(updateReqVO);
+        return success(true);
     }
 
 }

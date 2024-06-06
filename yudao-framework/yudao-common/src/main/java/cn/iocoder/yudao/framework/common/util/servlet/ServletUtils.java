@@ -11,6 +11,8 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -97,5 +99,15 @@ public class ServletUtils {
     public static Map<String, String> getParamMap(HttpServletRequest request) {
         return JakartaServletUtil.getParamMap(request);
     }
+    public static Map<String, String> getHeaderMap(HttpServletRequest request) {
+        Map<String, String> headerMap = new HashMap();
+        Enumeration<String> names = request.getHeaderNames();
 
+        while(names.hasMoreElements()) {
+            String name = (String)names.nextElement();
+            headerMap.put(name, request.getHeader(name));
+        }
+
+        return headerMap;
+    }
 }

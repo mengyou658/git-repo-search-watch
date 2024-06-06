@@ -5,12 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>yudao</artifactId>
-        <groupId>cn.iocoder.boot</groupId>
+        <groupId>com.yun.projects.github.repo.search</groupId>
         <version>${revision}</version>
     </parent>
     <packaging>pom</packaging>
     <modules>
         <module>yudao-common</module>
+        <module>yudao-common-api</module>
         <module>yudao-spring-boot-starter-mybatis</module>
         <module>yudao-spring-boot-starter-redis</module>
         <module>yudao-spring-boot-starter-web</module>

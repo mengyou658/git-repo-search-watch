@@ -1,5 +1,5 @@
 server:
-  port: 48080
+  port: 28000
 
 --- #################### 数据库相关配置 ####################
 
@@ -199,3 +199,12 @@ justauth:
     type: REDIS
     prefix: 'social_auth_state:' # 缓存前缀，目前只对 Redis 缓存生效，默认 JUSTAUTH::STATE::
     timeout: 24h # 超时时长，目前只对 Redis 缓存生效，默认 3 分钟
+
+
+debug:
+  enabled: true
+  mobiles:
+    - '18736571605'
+  payDebug: true
+  rechargePayDebug: true
+  packagePayDebug: true

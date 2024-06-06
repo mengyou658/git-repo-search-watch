@@ -40,7 +40,7 @@ public class ConfigController {
     @Operation(summary = "创建参数配置")
     @PreAuthorize("@ss.hasPermission('infra:config:create')")
     public CommonResult<Long> createConfig(@Valid @RequestBody ConfigSaveReqVO createReqVO) {
-        return success(configService.createConfig(createReqVO));
+        return success(configService.saveConfig(createReqVO));
     }
 
     @PutMapping("/update")
@@ -101,6 +101,12 @@ public class ConfigController {
         // 输出
         ExcelUtils.write(response, "参数配置.xls", "数据", ConfigRespVO.class,
                 ConfigConvert.INSTANCE.convertList(list));
+    }
+
+    @PostMapping("/save")
+    @Operation(summary = "创建或更新参数配置")
+    public CommonResult<Long> saveConfig(@Valid @RequestBody ConfigSaveSimpleReqVO createReqVO) {
+        return success(configService.saveConfig(createReqVO));
     }
 
 }

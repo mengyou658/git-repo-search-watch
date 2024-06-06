@@ -3,7 +3,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>cn.iocoder.boot</groupId>
+        <groupId>com.yun.projects.github.repo.search</groupId>
         <artifactId>yudao-framework</artifactId>
         <version>${revision}</version>
     </parent>
@@ -17,8 +17,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>cn.iocoder.boot</groupId>
-            <artifactId>yudao-common</artifactId>
+            <groupId>com.yun.projects.github.repo.search</groupId>
+            <artifactId>yudao-common-api</artifactId>
         </dependency>
 
         <!-- Spring 核心 -->
@@ -28,11 +28,11 @@
         </dependency>
 
         <!-- 业务组件 -->
-        <dependency>
-            <groupId>cn.iocoder.boot</groupId>
-            <artifactId>yudao-module-system-api</artifactId> <!-- 需要使用它，进行 Dict 的查询 -->
+        <!--<dependency>
+            <groupId>com.yun.projects.github.repo.search</groupId>
+            <artifactId>yudao-module-system-api</artifactId> &lt;!&ndash; 需要使用它，进行 Dict 的查询 &ndash;&gt;
             <version>${revision}</version>
-        </dependency>
+        </dependency>-->
 
         <!-- Web 相关 -->
         <dependency>
@@ -59,16 +59,37 @@
         </dependency>
 
         <dependency>
-            <groupId>cn.iocoder.boot</groupId>
+            <groupId>com.yun.projects.github.repo.search</groupId>
             <artifactId>yudao-spring-boot-starter-biz-ip</artifactId>
             <optional>true</optional> <!-- 设置为 optional，只有在 AreaConvert 的时候使用 -->
         </dependency>
 
         <!-- Test 测试相关 -->
         <dependency>
-            <groupId>cn.iocoder.boot</groupId>
+            <groupId>com.yun.projects.github.repo.search</groupId>
             <artifactId>yudao-spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

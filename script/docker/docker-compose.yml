@@ -33,7 +33,7 @@ services:
     image: yudao-server
     restart: unless-stopped
     ports:
-      - "48080:48080"
+      - "28000:28000"
     environment:
       # https://github.com/polovyivan/docker-pass-configs-to-container
       SPRING_PROFILES_ACTIVE: local

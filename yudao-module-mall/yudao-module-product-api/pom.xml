@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>cn.iocoder.boot</groupId>
+        <groupId>com.yun.projects.github.repo.search</groupId>
         <artifactId>yudao-module-mall</artifactId>
         <version>${revision}</version>
     </parent>
@@ -19,8 +19,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>cn.iocoder.boot</groupId>
-            <artifactId>yudao-common</artifactId>
+            <groupId>com.yun.projects.github.repo.search</groupId>
+            <artifactId>yudao-common-api</artifactId>
         </dependency>
 
         <!-- 参数校验 -->

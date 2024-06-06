@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>cn.iocoder.boot</groupId>
+    <groupId>com.yun.projects.github.repo.search</groupId>
     <artifactId>yudao-dependencies</artifactId>
     <version>${revision}</version>
     <packaging>pom</packaging>
@@ -14,7 +14,7 @@
     <url>https://github.com/YunaiV/ruoyi-vue-pro</url>
 
     <properties>
-        <revision>2.1.0-snapshot</revision>
+        <revision>2.1.5-snapshot</revision>
         <flatten-maven-plugin.version>1.5.0</flatten-maven-plugin.version>
         <!-- 统一依赖管理 -->
         <spring.boot.version>3.2.2</spring.boot.version>
@@ -23,10 +23,11 @@
         <knife4j.version>4.3.0</knife4j.version>
         <!-- DB 相关 -->
         <druid.version>1.2.21</druid.version>
-        <mybatis-plus.version>3.5.5</mybatis-plus.version>
-        <mybatis-plus-generator.version>3.5.5</mybatis-plus-generator.version>
+        <mybatis-plus.version>3.5.6</mybatis-plus.version>
+        <mybatis-plus-ext.version>3.5.6-EXT681</mybatis-plus-ext.version>
+        <mybatis-plus-generator.version>3.5.6</mybatis-plus-generator.version>
         <dynamic-datasource.version>4.3.0</dynamic-datasource.version>
-        <mybatis-plus-join.version>1.4.10</mybatis-plus-join.version>
+        <mybatis-plus-join.version>1.4.12</mybatis-plus-join.version>
         <easy-trans.version>2.2.11</easy-trans.version>
         <redisson.version>3.26.0</redisson.version>
         <dm8.jdbc.version>8.1.3.62</dm8.jdbc.version>
@@ -49,7 +50,7 @@
         <jsoup.version>1.17.2</jsoup.version>
         <lombok.version>1.18.30</lombok.version>
         <mapstruct.version>1.5.5.Final</mapstruct.version>
-        <hutool-5.version>5.8.25</hutool-5.version>
+        <hutool-5.version>5.8.27</hutool-5.version>
         <hutool-6.version>6.0.0-M10</hutool-6.version>
         <easyexcel.verion>3.3.3</easyexcel.verion>
         <velocity.version>2.3</velocity.version>
@@ -101,17 +102,17 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>cn.iocoder.boot</groupId>
+                <groupId>com.yun.projects.github.repo.search</groupId>
                 <artifactId>yudao-spring-boot-starter-biz-tenant</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
-                <groupId>cn.iocoder.boot</groupId>
+                <groupId>com.yun.projects.github.repo.search</groupId>
                 <artifactId>yudao-spring-boot-starter-biz-data-permission</artifactId>
                 <version>${revision}</version>
             </dependency>
             <dependency>
-                <groupId>cn.iocoder.boot</groupId>
+                <groupId>com.yun.projects.github.repo.search</groupId>
                 <artifactId>yudao-spring-boot-starter-biz-ip</artifactId>
                 <version>${revision}</version>
             </dependency>
@@ -126,20 +127,26 @@
 
             <!-- Web 相关 -->
             <dependency>
-                <groupId>cn.iocoder.boot</groupId>
+                <groupId>com.yun.projects.github.repo.search</groupId>
                 <artifactId>yudao-spring-boot-starter-web</artifactId>
                 <version>${revision}</version>
             </dependency>
 
             <dependency>
-                <groupId>cn.iocoder.boot</groupId>
+                <groupId>com.yun.projects.github.repo.search</groupId>
                 <artifactId>yudao-spring-boot-starter-security</artifactId>
                 <version>${revision}</version>
             </dependency>
 
             <dependency>
-                <groupId>cn.iocoder.boot</groupId>
+                <groupId>com.yun.projects.github.repo.search</groupId>
                 <artifactId>yudao-spring-boot-starter-websocket</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.yun.projects.github.repo.search</groupId>
+                <artifactId>yudao-common-api</artifactId>
                 <version>${revision}</version>
             </dependency>
 
@@ -161,7 +168,7 @@
 
             <!-- DB 相关 -->
             <dependency>
-                <groupId>cn.iocoder.boot</groupId>
+                <groupId>com.yun.projects.github.repo.search</groupId>
                 <artifactId>yudao-spring-boot-starter-mybatis</artifactId>
                 <version>${revision}</version>
             </dependency>
@@ -192,6 +199,31 @@
                 <version>${mybatis-plus-join.version}</version>
             </dependency>
 
+            <!-- 如果想只引入自动建表 -->
+            <!--<dependency>
+                <groupId>com.tangzc</groupId>
+                <artifactId>mybatis-plus-ext-actable-core</artifactId>
+                <version>${mybatis-plus-ext.version}</version>
+            </dependency>-->
+            <!-- 如果想只引入关联查询 -->
+            <dependency>
+                <groupId>com.tangzc</groupId>
+                <artifactId>mybatis-plus-ext-bind-core</artifactId>
+                <version>${mybatis-plus-ext.version}</version>
+            </dependency>
+            <!-- 如果想只引入数据冗余（关联更新） -->
+            <!--<dependency>
+                <groupId>com.tangzc</groupId>
+                <artifactId>mybatis-plus-ext-datasource</artifactId>
+                <version>${mybatis-plus-ext.version}</version>
+            </dependency>-->
+            <!-- 如果想只引入动态条件 -->
+            <dependency>
+                <groupId>com.tangzc</groupId>
+                <artifactId>mybatis-plus-ext-condition-core</artifactId>
+                <version>${mybatis-plus-ext.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.fhs-opensource</groupId> <!-- VO 数据翻译 -->
                 <artifactId>easy-trans-spring-boot-starter</artifactId>
@@ -219,7 +251,7 @@
             </dependency>
 
             <dependency>
-                <groupId>cn.iocoder.boot</groupId>
+                <groupId>com.yun.projects.github.repo.search</groupId>
                 <artifactId>yudao-spring-boot-starter-redis</artifactId>
                 <version>${revision}</version>
             </dependency>
@@ -236,22 +268,22 @@
                 </exclusions>
             </dependency>
 
-            <dependency>
+            <!--<dependency>
                 <groupId>com.dameng</groupId>
                 <artifactId>DmJdbcDriver18</artifactId>
                 <version>${dm8.jdbc.version}</version>
-            </dependency>
+            </dependency>-->
 
             <!-- Job 定时任务相关 -->
             <dependency>
-                <groupId>cn.iocoder.boot</groupId>
+                <groupId>com.yun.projects.github.repo.search</groupId>
                 <artifactId>yudao-spring-boot-starter-job</artifactId>
                 <version>${revision}</version>
             </dependency>
 
             <!-- 消息队列相关 -->
             <dependency>
-                <groupId>cn.iocoder.boot</groupId>
+                <groupId>com.yun.projects.github.repo.search</groupId>
                 <artifactId>yudao-spring-boot-starter-mq</artifactId>
                 <version>${revision}</version>
             </dependency>
@@ -264,7 +296,7 @@
 
             <!-- 服务保障相关 -->
             <dependency>
-                <groupId>cn.iocoder.boot</groupId>
+                <groupId>com.yun.projects.github.repo.search</groupId>
                 <artifactId>yudao-spring-boot-starter-protection</artifactId>
                 <version>${revision}</version>
             </dependency>
@@ -283,7 +315,7 @@
 
             <!-- 监控相关 -->
             <dependency>
-                <groupId>cn.iocoder.boot</groupId>
+                <groupId>com.yun.projects.github.repo.search</groupId>
                 <artifactId>yudao-spring-boot-starter-monitor</artifactId>
                 <version>${revision}</version>
             </dependency>
@@ -348,7 +380,7 @@
 
             <!-- Test 测试相关 -->
             <dependency>
-                <groupId>cn.iocoder.boot</groupId>
+                <groupId>com.yun.projects.github.repo.search</groupId>
                 <artifactId>yudao-spring-boot-starter-test</artifactId>
                 <version>${revision}</version>
                 <scope>test</scope>
@@ -403,13 +435,13 @@
 
             <!-- 工具类相关 -->
             <dependency>
-                <groupId>cn.iocoder.boot</groupId>
+                <groupId>com.yun.projects.github.repo.search</groupId>
                 <artifactId>yudao-common</artifactId>
                 <version>${revision}</version>
             </dependency>
 
             <dependency>
-                <groupId>cn.iocoder.boot</groupId>
+                <groupId>com.yun.projects.github.repo.search</groupId>
                 <artifactId>yudao-spring-boot-starter-excel</artifactId>
                 <version>${revision}</version>
             </dependency>
@@ -613,7 +645,11 @@
                 <artifactId>xercesImpl</artifactId>
                 <version>${xercesImpl.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>com.microsoft.playwright</groupId>
+                <artifactId>playwright</artifactId>
+                <version>1.44.0</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

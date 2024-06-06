@@ -39,7 +39,7 @@ public class PayOrderBaseVO {
     @NotNull(message = "商品描述不能为空")
     private String body;
 
-    @Schema(description = "异步通知地址", requiredMode = Schema.RequiredMode.REQUIRED, example = "http://127.0.0.1:48080/pay/notify")
+    @Schema(description = "异步通知地址", requiredMode = Schema.RequiredMode.REQUIRED, example = "http://127.0.0.1:28000/pay/notify")
     @NotNull(message = "异步通知地址不能为空")
     private String notifyUrl;
 

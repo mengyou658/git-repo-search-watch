@@ -37,7 +37,7 @@ public class SocialUserController {
     @Operation(summary = "社交绑定，使用 code 授权码")
     public CommonResult<Boolean> socialBind(@RequestBody @Valid SocialUserBindReqVO reqVO) {
         socialUserService.bindSocialUser(SocialUserConvert.INSTANCE.convert(
-                getLoginUserId(), UserTypeEnum.ADMIN.getValue(), reqVO));
+                getLoginUserId(), UserTypeEnum.ADMIN.getValue(), reqVO.getType(), reqVO));
         return CommonResult.success(true);
     }
 

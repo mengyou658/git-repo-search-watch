@@ -14,6 +14,8 @@ import cn.iocoder.yudao.module.infra.enums.job.JobStatusEnum;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.SchedulerException;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -24,6 +26,7 @@ import java.util.Objects;
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
 import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.containsAny;
 import static cn.iocoder.yudao.module.infra.enums.ErrorCodeConstants.*;
+import static cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants.IOT_JOB_LOG_KEY;
 
 /**
  * 定时任务 Service 实现类
@@ -43,6 +46,7 @@ public class JobServiceImpl implements JobService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(cacheNames = IOT_JOB_LOG_KEY, allEntries = true)
     public Long createJob(JobSaveReqVO createReqVO) throws SchedulerException {
         validateCronExpression(createReqVO.getCronExpression());
         // 1.1 校验唯一性
@@ -69,6 +73,7 @@ public class JobServiceImpl implements JobService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(cacheNames = IOT_JOB_LOG_KEY, allEntries = true)
     public void updateJob(JobSaveReqVO updateReqVO) throws SchedulerException {
         validateCronExpression(updateReqVO.getCronExpression());
         // 1.1 校验存在
@@ -102,6 +107,7 @@ public class JobServiceImpl implements JobService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(cacheNames = IOT_JOB_LOG_KEY, allEntries = true)
     public void updateJobStatus(Long id, Integer status) throws SchedulerException {
         // 校验 status
         if (!containsAny(status, JobStatusEnum.NORMAL.getStatus(), JobStatusEnum.STOP.getStatus())) {
@@ -156,6 +162,7 @@ public class JobServiceImpl implements JobService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(cacheNames = IOT_JOB_LOG_KEY, key = "#p0")
     public void deleteJob(Long id) throws SchedulerException {
         // 校验存在
         JobDO job = validateJobExists(id);
@@ -181,6 +188,7 @@ public class JobServiceImpl implements JobService {
     }
 
     @Override
+    @Cacheable(cacheNames = IOT_JOB_LOG_KEY, key = "#p0")
     public JobDO getJob(Long id) {
         return jobMapper.selectById(id);
     }

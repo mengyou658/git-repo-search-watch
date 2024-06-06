@@ -14,7 +14,7 @@ public class LocalFileClientTest {
     public void test() {
         // 创建客户端
         LocalFileClientConfig config = new LocalFileClientConfig();
-        config.setDomain("http://127.0.0.1:48080");
+        config.setDomain("http://127.0.0.1:28000");
         config.setBasePath("/Users/yunai/file_test");
         LocalFileClient client = new LocalFileClient(0L, config);
         client.init();

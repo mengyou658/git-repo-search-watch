@@ -41,6 +41,15 @@ public class DefaultDBFieldHandler implements MetaObjectHandler {
             if (Objects.nonNull(userId) && Objects.isNull(baseDO.getUpdater())) {
                 baseDO.setUpdater(userId.toString());
             }
+        } else {
+            Object modifyTime = getFieldValByName("createTime", metaObject);
+            if (Objects.isNull(modifyTime)) {
+                setFieldValByName("createTime", LocalDateTime.now(), metaObject);
+            }
+            modifyTime = getFieldValByName("updateTime", metaObject);
+            if (Objects.isNull(modifyTime)) {
+                setFieldValByName("updateTime", LocalDateTime.now(), metaObject);
+            }
         }
     }
 

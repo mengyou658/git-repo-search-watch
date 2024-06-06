@@ -1,0 +1,33 @@
+
+### 在线设置日志级别
+POST http://gitclone.16688.online:28001/prod-api/admin-api/home/logging/setLevel?category=ROOT&level=DEBUG
+tenant-id: 1
+
+### 在线设置日志级别
+POST http://gitclone.16688.online:28001/prod-api/admin-api/home/logging/setLevel?category=ROOT&level=INFO
+tenant-id: 1
+
+### 在线设置日志级别
+POST http://gitclone.16688.online:28001/prod-api/admin-api/home/logging/setLevel?category=cn.iocoder.yudao&level=DEBUG
+tenant-id: 1
+
+### 在线设置日志级别
+POST http://gitclone.16688.online:28001/prod-api/admin-api/home/logging/setLevel?category=cn.iocoder.yudao&level=INFO
+tenant-id: 1
+
+### 在线设置日志级别
+POST http://gitclone.16688.online:28001/prod-api/admin-api/home/logging/setLevel?category=cn.iocoder.yudao.module.member&level=INFO
+tenant-id: 1
+
+### 在线设置日志级别
+POST http://gitclone.16688.online:28001/prod-api/admin-api/home/logging/setLevel?category=cn.iocoder.yudao.module.member&level=DEBUG
+tenant-id: 1
+
+### 在线设置日志级别
+POST http://gitclone.16688.online:28001/prod-api/admin-api/home/logging/setLevel?category=cn.iocoder.yudao.module.member&level=INFO
+tenant-id: 1
+
+### 在线查询日志级别
+GET http://gitclone.16688.online:28001/prod-api/admin-api/home/logging/getLevel?category=ROOT
+tenant-id: 1
+

@@ -111,10 +111,10 @@ public class DictDataServiceImpl implements DictDataService {
         }
         // 如果 id 为空，说明不用比较是否为相同 id 的字典数据
         if (id == null) {
-            throw exception(DICT_DATA_VALUE_DUPLICATE);
+            throw exception(DICT_DATA_VALUE_DUPLICATE, value);
         }
         if (!dictData.getId().equals(id)) {
-            throw exception(DICT_DATA_VALUE_DUPLICATE);
+            throw exception(DICT_DATA_VALUE_DUPLICATE, value);
         }
     }
 

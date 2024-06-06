@@ -3,7 +3,8 @@ spring:
     name: yudao-server
 
   profiles:
-    active: local
+    active: @profileActive@
+#      active: prod
 
   main:
     allow-circular-references: true # 允许循环依赖，因为项目是三层架构，无法避免这个情况。
@@ -182,7 +183,7 @@ yudao:
     db-schemas: ${spring.datasource.dynamic.datasource.master.name}
     front-type: 10 # 前端模版的类型，参见 CodegenFrontTypeEnum 枚举类
   tenant: # 多租户相关配置项
-    enable: true
+    enable: false
     ignore-urls:
       - /admin-api/system/tenant/get-id-by-name # 基于名字获取租户，不许带租户编号
       - /admin-api/system/tenant/get-by-website # 基于域名获取租户，不许带租户编号
@@ -235,6 +236,8 @@ yudao:
       - rep_demo_jianpiao
       - tmp_report_data_1
       - tmp_report_data_income
+      - repo_watch_task
+      - repo_watch_result
   sms-code: # 短信验证码相关的配置项
     expire-times: 10m
     send-frequency: 1m

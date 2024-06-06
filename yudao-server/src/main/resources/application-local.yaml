@@ -1,5 +1,5 @@
 server:
-  port: 48080
+  port: 28000
 
 --- #################### 数据库相关配置 ####################
 
@@ -7,7 +7,7 @@ spring:
   # 数据源配置项
   autoconfigure:
     exclude:
-      - org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration # 默认 local 环境，不开启 Quartz 的自动配置
+#      - org.springframework.boot.autoconfigure.quartz.QuartzAutoConfiguration # 默认 local 环境，不开启 Quartz 的自动配置
       - de.codecentric.boot.admin.server.config.AdminServerAutoConfiguration # 禁用 Spring Boot Admin 的 Server 的自动配置
       - de.codecentric.boot.admin.server.ui.config.AdminServerUiAutoConfiguration # 禁用 Spring Boot Admin 的 Server UI 的自动配置
       - de.codecentric.boot.admin.client.config.SpringBootAdminClientAutoConfiguration # 禁用 Spring Boot Admin 的 Client 的自动配置
@@ -46,7 +46,7 @@ spring:
       primary: master
       datasource:
         master:
-          url: jdbc:mysql://127.0.0.1:3306/ruoyi-vue-pro?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true # MySQL Connector/J 8.X 连接的示例
+          url: jdbc:mysql://127.0.0.1:3306/github-repo-search-watch?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true # MySQL Connector/J 8.X 连接的示例
           #          url: jdbc:mysql://127.0.0.1:3306/ruoyi-vue-pro?useSSL=true&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai # MySQL Connector/J 5.X 连接的示例
           #          url: jdbc:postgresql://127.0.0.1:5432/ruoyi-vue-pro # PostgreSQL 连接的示例
           #          url: jdbc:oracle:thin:@127.0.0.1:1521:xe # Oracle 连接的示例
@@ -54,16 +54,16 @@ spring:
           #          url: jdbc:dm://127.0.0.1:5236?schema=RUOYI_VUE_PRO # DM 连接的示例
           #          url: jdbc:postgresql://127.0.0.1:54321/test  # KingbaseES 人大金仓 连接的示例, MyBatis不兼容官方驱动
           username: root
-          password: 123456
+          password: admin
         #          username: sa # SQL Server 连接的示例
         #          password: Yudao@2024 # SQL Server 连接的示例
         #          username: SYSDBA # DM 连接的示例
         #          password: SYSDBA001 # DM 连接的示例
-        slave: # 模拟从库，可根据自己需要修改
-          lazy: true # 开启懒加载，保证启动速度
-          url: jdbc:mysql://127.0.0.1:3306/ruoyi-vue-pro?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true
-          username: root
-          password: 123456
+#        slave: # 模拟从库，可根据自己需要修改
+#          lazy: true # 开启懒加载，保证启动速度
+#          url: jdbc:mysql://127.0.0.1:3306/ruoyi-vue-pro?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true
+#          username: root
+#          password: 123456
 
   # Redis 配置。Redisson 默认的配置足够使用，一般不需要进行调优
   data:
@@ -79,7 +79,7 @@ spring:
 spring:
   quartz:
     auto-startup: true # 本地开发环境，尽量不要开启 Job
-    scheduler-name: schedulerName # Scheduler 名字。默认为 schedulerName
+    scheduler-name: schedulerNameGitRepo # Scheduler 名字。默认为 schedulerNameGitRepo
     job-store-type: jdbc # Job 存储器类型。默认为 memory 表示内存，可选 jdbc 使用数据库。
     wait-for-jobs-to-complete-on-shutdown: true # 应用关闭时，是否等待定时任务执行完成。默认为 false ，建议设置为 true
     properties: # 添加 Quartz Scheduler 附加属性，更多可以看 http://www.quartz-scheduler.org/documentation/2.4.0-SNAPSHOT/configuration.html 文档
@@ -87,7 +87,7 @@ spring:
         quartz:
           # Scheduler 相关配置
           scheduler:
-            instanceName: schedulerName
+            instanceName: schedulerNameGitRepo
             instanceId: AUTO # 自动生成 instance ID
           # JobStore 相关配置
           jobStore:
@@ -107,19 +107,19 @@ spring:
 --- #################### 消息队列相关 ####################
 
 # rocketmq 配置项，对应 RocketMQProperties 配置类
-rocketmq:
-  name-server: 127.0.0.1:9876 # RocketMQ Namesrv
+#rocketmq:
+#  name-server: 127.0.0.1:9876 # RocketMQ Namesrv
 
-spring:
-  # RabbitMQ 配置项，对应 RabbitProperties 配置类
-  rabbitmq:
-    host: 127.0.0.1 # RabbitMQ 服务的地址
-    port: 5672 # RabbitMQ 服务的端口
-    username: rabbit # RabbitMQ 服务的账号
-    password: rabbit # RabbitMQ 服务的密码
-  # Kafka 配置项，对应 KafkaProperties 配置类
-  kafka:
-    bootstrap-servers: 127.0.0.1:9092 # 指定 Kafka Broker 地址，可以设置多个，以逗号分隔
+#spring:
+#  # RabbitMQ 配置项，对应 RabbitProperties 配置类
+#  rabbitmq:
+#    host: 127.0.0.1 # RabbitMQ 服务的地址
+#    port: 5672 # RabbitMQ 服务的端口
+#    username: rabbit # RabbitMQ 服务的账号
+#    password: rabbit # RabbitMQ 服务的密码
+#  # Kafka 配置项，对应 KafkaProperties 配置类
+#  kafka:
+#    bootstrap-servers: 127.0.0.1:9092 # 指定 Kafka Broker 地址，可以设置多个，以逗号分隔
 
 --- #################### 服务保障相关配置 ####################
 
@@ -131,48 +131,48 @@ lock4j:
 --- #################### 监控相关配置 ####################
 
 # Actuator 监控端点的配置项
-management:
-  endpoints:
-    web:
-      base-path: /actuator # Actuator 提供的 API 接口的根目录。默认为 /actuator
-      exposure:
-        include: '*' # 需要开放的端点。默认值只打开 health 和 info 两个端点。通过设置 * ，可以开放所有端点。
+#management:
+#  endpoints:
+#    web:
+#      base-path: /actuator # Actuator 提供的 API 接口的根目录。默认为 /actuator
+#      exposure:
+#        include: '*' # 需要开放的端点。默认值只打开 health 和 info 两个端点。通过设置 * ，可以开放所有端点。
 
 # Spring Boot Admin 配置项
-spring:
-  boot:
-    admin:
-      # Spring Boot Admin Client 客户端的相关配置
-      client:
-        url: http://127.0.0.1:${server.port}/${spring.boot.admin.context-path} # 设置 Spring Boot Admin Server 地址
-        instance:
-          service-host-type: IP # 注册实例时，优先使用 IP [IP, HOST_NAME, CANONICAL_HOST_NAME]
-      # Spring Boot Admin Server 服务端的相关配置
-      context-path: /admin # 配置 Spring
+#spring:
+#  boot:
+#    admin:
+#      # Spring Boot Admin Client 客户端的相关配置
+#      client:
+#        url: http://127.0.0.1:${server.port}/${spring.boot.admin.context-path} # 设置 Spring Boot Admin Server 地址
+#        instance:
+#          service-host-type: IP # 注册实例时，优先使用 IP [IP, HOST_NAME, CANONICAL_HOST_NAME]
+#      # Spring Boot Admin Server 服务端的相关配置
+#      context-path: /admin # 配置 Spring
 
 # 日志文件配置
-logging:
-  file:
-    name: ${user.home}/logs/${spring.application.name}.log # 日志文件名，全路径
-  level:
-    # 配置自己写的 MyBatis Mapper 打印日志
-    cn.iocoder.yudao.module.bpm.dal.mysql: debug
-    cn.iocoder.yudao.module.infra.dal.mysql: debug
-    cn.iocoder.yudao.module.infra.dal.mysql.logger.ApiErrorLogMapper: INFO # 配置 ApiErrorLogMapper 的日志级别为 info，避免和 GlobalExceptionHandler 重复打印
-    cn.iocoder.yudao.module.infra.dal.mysql.job.JobLogMapper: INFO # 配置 JobLogMapper 的日志级别为 info
-    cn.iocoder.yudao.module.infra.dal.mysql.file.FileConfigMapper: INFO # 配置 FileConfigMapper 的日志级别为 info
-    cn.iocoder.yudao.module.pay.dal.mysql: debug
-    cn.iocoder.yudao.module.pay.dal.mysql.notify.PayNotifyTaskMapper: INFO # 配置 PayNotifyTaskMapper 的日志级别为 info
-    cn.iocoder.yudao.module.system.dal.mysql: debug
-    cn.iocoder.yudao.module.system.dal.mysql.sms.SmsChannelMapper: INFO # 配置 SmsChannelMapper 的日志级别为 info
-    cn.iocoder.yudao.module.tool.dal.mysql: debug
-    cn.iocoder.yudao.module.member.dal.mysql: debug
-    cn.iocoder.yudao.module.trade.dal.mysql: debug
-    cn.iocoder.yudao.module.promotion.dal.mysql: debug
-    cn.iocoder.yudao.module.statistics.dal.mysql: debug
-    cn.iocoder.yudao.module.crm.dal.mysql: debug
-    cn.iocoder.yudao.module.erp.dal.mysql: debug
-    org.springframework.context.support.PostProcessorRegistrationDelegate: ERROR # TODO 芋艿：先禁用，Spring Boot 3.X 存在部分错误的 WARN 提示
+#logging:
+#  file:
+#    name: ${user.home}/logs/${spring.application.name}.log # 日志文件名，全路径
+#  level:
+#    # 配置自己写的 MyBatis Mapper 打印日志
+#    cn.iocoder.yudao.module.bpm.dal.mysql: debug
+#    cn.iocoder.yudao.module.infra.dal.mysql: debug
+#    cn.iocoder.yudao.module.infra.dal.mysql.logger.ApiErrorLogMapper: INFO # 配置 ApiErrorLogMapper 的日志级别为 info，避免和 GlobalExceptionHandler 重复打印
+#    cn.iocoder.yudao.module.infra.dal.mysql.job.JobLogMapper: INFO # 配置 JobLogMapper 的日志级别为 info
+#    cn.iocoder.yudao.module.infra.dal.mysql.file.FileConfigMapper: INFO # 配置 FileConfigMapper 的日志级别为 info
+#    cn.iocoder.yudao.module.pay.dal.mysql: debug
+#    cn.iocoder.yudao.module.pay.dal.mysql.notify.PayNotifyTaskMapper: INFO # 配置 PayNotifyTaskMapper 的日志级别为 info
+#    cn.iocoder.yudao.module.system.dal.mysql: debug
+#    cn.iocoder.yudao.module.system.dal.mysql.sms.SmsChannelMapper: INFO # 配置 SmsChannelMapper 的日志级别为 info
+#    cn.iocoder.yudao.module.tool.dal.mysql: debug
+#    cn.iocoder.yudao.module.member.dal.mysql: debug
+#    cn.iocoder.yudao.module.trade.dal.mysql: debug
+#    cn.iocoder.yudao.module.promotion.dal.mysql: debug
+#    cn.iocoder.yudao.module.statistics.dal.mysql: debug
+#    cn.iocoder.yudao.module.crm.dal.mysql: debug
+#    cn.iocoder.yudao.module.erp.dal.mysql: debug
+#    org.springframework.context.support.PostProcessorRegistrationDelegate: ERROR # TODO 芋艿：先禁用，Spring Boot 3.X 存在部分错误的 WARN 提示
 
 debug: false
 

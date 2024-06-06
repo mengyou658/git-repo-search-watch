@@ -22,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.*;
 
 import static java.util.Collections.singletonList;
@@ -63,6 +64,8 @@ public class DataPermissionDatabaseInterceptorTest extends BaseMockitoUnitTest {
             interceptor.beforeQuery(null, mappedStatement, null, null, null, boundSql);
             // 断言
             pluginUtilsMock.verify(() -> PluginUtils.mpBoundSql(boundSql), never());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -90,6 +93,8 @@ public class DataPermissionDatabaseInterceptorTest extends BaseMockitoUnitTest {
                     eq("SELECT * FROM t_user WHERE id = 1 AND t_user.dept_id = 100"));
             // 断言缓存
             assertTrue(interceptor.getMappedStatementCache().getNoRewritableMappedStatements().isEmpty());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -117,6 +122,8 @@ public class DataPermissionDatabaseInterceptorTest extends BaseMockitoUnitTest {
                     eq("SELECT * FROM t_role WHERE id = 1"));
             // 断言缓存
             assertFalse(interceptor.getMappedStatementCache().getNoRewritableMappedStatements().isEmpty());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 

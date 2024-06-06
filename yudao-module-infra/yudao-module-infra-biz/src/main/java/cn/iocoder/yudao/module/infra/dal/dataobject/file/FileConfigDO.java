@@ -15,7 +15,14 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.handlers.AbstractJsonTypeHandler;
 import com.fasterxml.jackson.core.type.TypeReference;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
+import java.lang.reflect.Field;
 
 /**
  * 文件配置表
@@ -62,11 +69,18 @@ public class FileConfigDO extends BaseDO {
      */
     @TableField(typeHandler = FileClientConfigTypeHandler.class)
     private FileClientConfig config;
-
     public static class FileClientConfigTypeHandler extends AbstractJsonTypeHandler<Object> {
 
+        public FileClientConfigTypeHandler(Class<?> type) {
+            super(type);
+        }
+
+        public FileClientConfigTypeHandler(Class<?> type, Field field) {
+            super(type, field);
+        }
+
         @Override
-        protected Object parse(String json) {
+        public Object parse(String json) {
             FileClientConfig config = JsonUtils.parseObjectQuietly(json, new TypeReference<>() {});
             if (config != null) {
                 return config;
@@ -92,7 +106,7 @@ public class FileConfigDO extends BaseDO {
         }
 
         @Override
-        protected String toJson(Object obj) {
+        public String toJson(Object obj) {
             return JsonUtils.toJsonString(obj);
         }
 

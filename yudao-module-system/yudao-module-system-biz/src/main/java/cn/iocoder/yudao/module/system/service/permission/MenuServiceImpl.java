@@ -4,11 +4,14 @@ import cn.hutool.core.collection.CollUtil;
 import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.module.system.controller.admin.permission.vo.menu.MenuListReqVO;
 import cn.iocoder.yudao.module.system.controller.admin.permission.vo.menu.MenuSaveVO;
+import cn.iocoder.yudao.module.system.controller.admin.permission.vo.menu.MenuUpdateStatusVO;
 import cn.iocoder.yudao.module.system.dal.dataobject.permission.MenuDO;
 import cn.iocoder.yudao.module.system.dal.mysql.permission.MenuMapper;
 import cn.iocoder.yudao.module.system.dal.redis.RedisKeyConstants;
 import cn.iocoder.yudao.module.system.enums.permission.MenuTypeEnum;
 import cn.iocoder.yudao.module.system.service.tenant.TenantService;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import jakarta.annotation.Resource;
@@ -207,6 +210,26 @@ public class MenuServiceImpl implements MenuService {
             menu.setComponentName("");
             menu.setIcon("");
             menu.setPath("");
+        }
+    }
+
+
+    @Override
+    public void updateAllStatus(MenuUpdateStatusVO updateReqVO) {
+        menuMapper.update(new LambdaUpdateWrapper<MenuDO>()
+                .eq(MenuDO::getId,  updateReqVO.getId())
+                .set(MenuDO::getStatus, updateReqVO.getStatus())
+        );
+        List<MenuDO> menuDOS = menuMapper.selectList(new LambdaQueryWrapper<MenuDO>()
+                .select(MenuDO::getId)
+                .eq(MenuDO::getParentId, updateReqVO.getId())
+                .eq(MenuDO::getStatus, updateReqVO.getStatus() == 0 ? 1 : 0)
+        );
+        if (CollUtil.isNotEmpty(menuDOS)) {
+            for (MenuDO menuDO : menuDOS) {
+                updateReqVO.setId(menuDO.getId());
+                updateAllStatus(updateReqVO);
+            }
         }
     }
 

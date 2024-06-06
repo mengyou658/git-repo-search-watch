@@ -22,8 +22,8 @@ import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 
 import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
 
-import cn.iocoder.yudao.framework.operatelog.core.annotations.OperateLog;
-import static cn.iocoder.yudao.framework.operatelog.core.enums.OperateTypeEnum.*;
+import cn.iocoder.yudao.framework.apilog.core.annotation.ApiAccessLog;
+import static cn.iocoder.yudao.framework.apilog.core.enums.OperateTypeEnum.*;
 
 import cn.iocoder.yudao.module.infra.controller.admin.demo.vo.*;
 import cn.iocoder.yudao.module.infra.dal.dataobject.demo.InfraCategoryDO;
@@ -82,7 +82,7 @@ public class InfraCategoryController {
     @GetMapping("/export-excel")
     @Operation(summary = "导出分类 Excel")
     @PreAuthorize("@ss.hasPermission('infra:category:export')")
-    @OperateLog(type = EXPORT)
+    @ApiAccessLog(type = EXPORT)
     public void exportCategoryExcel(@Valid InfraCategoryListReqVO listReqVO,
               HttpServletResponse response) throws IOException {
         List<InfraCategoryDO> list = categoryService.getCategoryList(listReqVO);

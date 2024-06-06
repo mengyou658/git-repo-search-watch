@@ -35,13 +35,13 @@ public class ConfigServiceImplTest extends BaseDbUnitTest {
     private ConfigMapper configMapper;
 
     @Test
-    public void testCreateConfig_success() {
+    public void testSaveConfig_success() {
         // 准备参数
         ConfigSaveReqVO reqVO = randomPojo(ConfigSaveReqVO.class)
                 .setId(null); // 防止 id 被赋值，导致唯一性校验失败
 
         // 调用
-        Long configId = configService.createConfig(reqVO);
+        Long configId = configService.saveConfig(reqVO);
         // 断言
         assertNotNull(configId);
         // 校验记录的属性是否正确

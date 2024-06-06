@@ -16,4 +16,7 @@ public class DictTypeSimpleRespVO {
     @Schema(description = "字典类型", requiredMode = Schema.RequiredMode.REQUIRED, example = "sys_common_sex")
     private String type;
 
+    @Schema(description = "创建用户", requiredMode = Schema.RequiredMode.REQUIRED, example = "")
+    private String creator;
+
 }

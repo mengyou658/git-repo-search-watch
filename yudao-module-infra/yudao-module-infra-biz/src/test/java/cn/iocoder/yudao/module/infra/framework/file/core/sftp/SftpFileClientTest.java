@@ -14,7 +14,7 @@ public class SftpFileClientTest {
     public void test() {
         // 创建客户端
         SftpFileClientConfig config = new SftpFileClientConfig();
-        config.setDomain("http://127.0.0.1:48080");
+        config.setDomain("http://127.0.0.1:28000");
         config.setBasePath("/home/ftp");
         config.setHost("kanchai.club");
         config.setPort(222);

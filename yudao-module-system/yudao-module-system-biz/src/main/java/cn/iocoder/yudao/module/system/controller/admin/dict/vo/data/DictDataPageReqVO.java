@@ -26,4 +26,7 @@ public class DictDataPageReqVO extends PageParam {
     @InEnum(value = CommonStatusEnum.class, message = "修改状态必须是 {value}")
     private Integer status;
 
+    @Schema(description = "创建用户", requiredMode = Schema.RequiredMode.REQUIRED, example = "")
+    private String creator;
+
 }

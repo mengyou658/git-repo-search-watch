@@ -71,4 +71,6 @@ public class JobDO extends BaseDO {
      */
     private Integer monitorTimeout;
 
+    private Integer logFlag;
+
 }

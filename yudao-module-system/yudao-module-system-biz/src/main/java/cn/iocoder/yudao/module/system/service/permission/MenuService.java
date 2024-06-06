@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.system.service.permission;
 
 import cn.iocoder.yudao.module.system.controller.admin.permission.vo.menu.MenuSaveVO;
 import cn.iocoder.yudao.module.system.controller.admin.permission.vo.menu.MenuListReqVO;
+import cn.iocoder.yudao.module.system.controller.admin.permission.vo.menu.MenuUpdateStatusVO;
 import cn.iocoder.yudao.module.system.dal.dataobject.permission.MenuDO;
 
 import java.util.Collection;
@@ -83,5 +84,9 @@ public interface MenuService {
      * @return 菜单数组
      */
     List<MenuDO> getMenuList(Collection<Long> ids);
+
+
+    void updateAllStatus(MenuUpdateStatusVO updateReqVO);
+
 
 }

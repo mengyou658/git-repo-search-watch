@@ -22,4 +22,7 @@ public class DictDataSimpleRespVO {
     @Schema(description = "css 样式", example = "btn-visible")
     private String cssClass;
 
+    @Schema(description = "创建用户", requiredMode = Schema.RequiredMode.REQUIRED, example = "")
+    private String creator;
+
 }
