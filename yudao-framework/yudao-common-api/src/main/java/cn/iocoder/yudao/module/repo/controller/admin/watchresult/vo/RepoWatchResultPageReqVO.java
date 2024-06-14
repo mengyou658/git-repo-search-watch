@@ -52,6 +52,9 @@ public class RepoWatchResultPageReqVO extends PageParam {
     @Schema(description = "仓库开发语言")
     private String repoLang;
 
+    @Query(propName = RepoWatchResultBaseVO.Fields.repoLang, type = Query.Type.IS_NULL_OR_EMPTY)
+    private Boolean repoLangEmpty;
+
     @Query(propName = RepoWatchResultBaseVO.Fields.repoName, type = Query.Type.LIKE)
     @Schema(description = "仓库名称", example = "张三")
     private String repoName;
@@ -59,6 +62,9 @@ public class RepoWatchResultPageReqVO extends PageParam {
     @Query(propName = RepoWatchResultBaseVO.Fields.repoDesc, type = Query.Type.LIKE)
     @Schema(description = "仓库描述")
     private String repoDesc;
+
+    @Query(propName = RepoWatchResultBaseVO.Fields.repoDesc, type = Query.Type.IS_NULL_OR_EMPTY)
+    private Boolean repoDescEmpty;
 
     @Query(propName = RepoWatchResultBaseVO.Fields.repoLocalClone, type = Query.Type.LIKE)
     @Schema(description = "仓库本地克隆")

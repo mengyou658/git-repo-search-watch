@@ -6,6 +6,7 @@ import cn.hutool.core.annotation.AnnotationUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -33,6 +34,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 public class QueryHelperMybatisPlus {
@@ -148,7 +150,7 @@ public class QueryHelperMybatisPlus {
                         queryWrapper = getQueryWrapper(queryWrapper, value, query, colNames);
                     }
                     // 这里处理为空的逻辑
-                    queryWrapper = getQueryWrapperExtra(queryWrapper, query, colNames);
+                    queryWrapper = getQueryWrapperExtra(queryWrapper, value, query, colNames);
 
                     buildQueryOverride(field, query, colNames, queryWrapper, entityClass, criteria);
                 }
@@ -162,7 +164,15 @@ public class QueryHelperMybatisPlus {
         return queryWrapper;
     }
 
-    protected static <Q, T, Children extends AbstractWrapper<T, String, Children>> AbstractWrapper<T, String, Children> getQueryWrapperExtra(AbstractWrapper<T, String, Children> queryWrapper, Query query, List<String> colNames) {
+    protected static <Q, T, Children extends AbstractWrapper<T, String, Children>> AbstractWrapper<T, String, Children> getQueryWrapperExtra(AbstractWrapper<T, String, Children> queryWrapper, Object value, Query query, List<String> colNames) {
+        if (Objects.isNull(value)) {
+            return queryWrapper;
+        }
+        Boolean valBool = BooleanUtil.toBooleanObject(value.toString());
+        if (Objects.isNull(valBool) || !valBool) {
+            return queryWrapper;
+        }
+
         switch (query.type()) {
             case IS_NULL:
                 queryWrapper = queryWrapper.and(qu -> {
