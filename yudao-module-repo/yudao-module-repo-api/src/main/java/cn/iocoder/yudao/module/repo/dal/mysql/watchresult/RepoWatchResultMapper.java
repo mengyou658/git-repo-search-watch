@@ -9,6 +9,8 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+
 /**
  * 仓库监控结果 Mapper
  *
@@ -29,4 +31,7 @@ public interface RepoWatchResultMapper extends BaseMapperX<RepoWatchResultDO> {
 
     @Select("${sql}")
     Long selectCountRaw(@Param("sql") String sql);
+
+    @Select("${sql}")
+    List<RepoWatchResultDO> selectListRaw(@Param("sql") String sql);
 }

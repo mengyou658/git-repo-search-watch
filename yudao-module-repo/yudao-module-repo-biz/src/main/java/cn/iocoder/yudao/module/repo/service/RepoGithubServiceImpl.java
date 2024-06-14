@@ -10,6 +10,7 @@ import cn.hutool.core.util.URLUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.iocoder.yudao.module.infra.service.config.ConfigService;
 import cn.iocoder.yudao.module.repo.controller.admin.RepoConfigVO;
+import cn.iocoder.yudao.module.repo.controller.admin.RepoListVO;
 import cn.iocoder.yudao.module.repo.dal.dataobject.watchconfig.RepoWatchConfigDO;
 import cn.iocoder.yudao.module.repo.dal.dataobject.watchresult.RepoWatchResultDO;
 import cn.iocoder.yudao.module.repo.dal.dataobject.watchtask.RepoWatchTaskDO;
@@ -28,6 +29,11 @@ import com.aliyun.devops20210625.models.DeleteRepositoryResponse;
 import com.aliyun.devops20210625.models.GetRepositoryRequest;
 import com.aliyun.devops20210625.models.GetRepositoryResponse;
 import com.aliyun.devops20210625.models.GetRepositoryResponseBody;
+import com.aliyun.devops20210625.models.ListGroupRepositoriesRequest;
+import com.aliyun.devops20210625.models.ListGroupRepositoriesResponse;
+import com.aliyun.devops20210625.models.ListGroupRepositoriesRequest;
+import com.aliyun.devops20210625.models.ListGroupRepositoriesResponse;
+import com.aliyun.devops20210625.models.ListGroupRepositoriesResponseBody;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserContext;
@@ -58,7 +64,10 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -462,6 +471,108 @@ public class RepoGithubServiceImpl implements RepoService {
             return false;
         }
         return true;
+    }
+
+    private Map<Long, RepoListVO> getRepoListOfGroup() {
+        Map<Long, RepoListVO> resMap = new HashMap<>();
+        List<RepoWatchTaskDO> taskDOS = repoWatchTaskMapper.selectListRaw("select * from repo_watch_task");
+        Map<String, List<ListGroupRepositoriesResponseBody.ListGroupRepositoriesResponseBodyResult>> tmpDataMap = new HashMap<>();
+        for (RepoWatchTaskDO taskDO : taskDOS) {
+            try {
+                String creator = taskDO.getCreator();
+                RepoConfigVO repoConfig = getRepoConfig(creator);
+                RepoListVO res = new RepoListVO();
+                res.setTask(taskDO);
+                res.setRepoConfig(repoConfig);
+                if (taskDO.getCloneType() == 1) {
+                    List<ListGroupRepositoriesResponseBody.ListGroupRepositoriesResponseBodyResult> dataList = new ArrayList<>();
+                    List<ListGroupRepositoriesResponseBody.ListGroupRepositoriesResponseBodyResult> dataListTmp = tmpDataMap.get(creator);
+                    if (null != dataListTmp) {
+                        dataList = dataListTmp;
+                    } else {
+                        getRepoListOfGroup(repoConfig, dataList, 1);
+                        tmpDataMap.put(creator, dataList);
+                    }
+                    res.setRepoList(dataList);
+                }
+                resMap.put(taskDO.getId(), res);
+            } catch (Exception e) {
+                log.error(e.getMessage());
+            }
+        }
+
+        return resMap;
+    }
+
+    public Client getClient(RepoConfigVO repoConfig) throws Exception {
+        com.aliyun.teaopenapi.models.Config config = new com.aliyun.teaopenapi.models.Config()
+                .setAccessKeyId(repoConfig.getAliyunCloneAk())
+                .setAccessKeySecret(repoConfig.getAliyunCloneSk())
+                .setEndpoint("devops.cn-hangzhou.aliyuncs.com");
+
+        return new Client(config);
+    }
+
+    public void getRepoListOfGroup(RepoConfigVO repoConfig, List<ListGroupRepositoriesResponseBody.ListGroupRepositoriesResponseBodyResult> dataList, long page) {
+        try {
+            Client client = getClient(repoConfig);
+            ListGroupRepositoriesRequest getRepositoryRequest = new ListGroupRepositoriesRequest()
+                    .setOrganizationId(repoConfig.getAliyunCloneOrganizationId())
+                    .setPage(page)
+                    .setPageSize(100L);
+
+            ListGroupRepositoriesResponse repository = client.listGroupRepositories(repoConfig.getAliyunCloneNamespaceId() + "", getRepositoryRequest);
+            ListGroupRepositoriesResponseBody repositoryBody = repository.getBody();
+            if (repositoryBody.getSuccess()) {
+                List<ListGroupRepositoriesResponseBody.ListGroupRepositoriesResponseBodyResult> result = repositoryBody.getResult();
+                dataList.addAll(result);
+                if (result.size() == 100) {
+                    getRepoListOfGroup(repoConfig, dataList, page + 1);
+                }
+            } else {
+                log.error("getRepoListOfGroup {}", repositoryBody.getErrorMessage());
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+
+    }
+
+    @Override
+    public void cleanRepo() {
+        List<RepoWatchResultDO> repoWatchResultDOS = repoWatchResultMapper.selectList();
+        Map<Long, RepoListVO> repos = getRepoListOfGroup();
+        Map<Long, List<RepoWatchResultDO>> resultMap = repoWatchResultDOS.stream().collect(Collectors.groupingBy(RepoWatchResultDO::getTaskId));
+        resultMap.forEach((taskId, repoWatchResultDOS1) -> {
+            RepoListVO repoListVO = repos.get(taskId);
+            List<ListGroupRepositoriesResponseBody.ListGroupRepositoriesResponseBodyResult> repoList = repoListVO.getRepoList();
+            if (CollUtil.isNotEmpty(repoList)) {
+                repoList.removeIf(it -> repoWatchResultDOS1.stream().anyMatch(it1 -> null != it1.getRepoLocalClone() && it1.getRepoLocalClone().equals(it.getWebUrl())));
+            }
+        });
+        resultMap.forEach((taskId, repoWatchResultDOS1) -> {
+            RepoListVO repoListVO = repos.get(taskId);
+            RepoConfigVO repoConfig = repoListVO.getRepoConfig();
+            List<ListGroupRepositoriesResponseBody.ListGroupRepositoriesResponseBodyResult> repoList = repoListVO.getRepoList();
+            if (CollUtil.isNotEmpty(repoList)) {
+                for (ListGroupRepositoriesResponseBody.ListGroupRepositoriesResponseBodyResult it : repoList) {
+                    DeleteRepositoryRequest deleteRepositoryRequest = new DeleteRepositoryRequest()
+                            .setOrganizationId(repoConfig.getAliyunCloneOrganizationId())
+                            .setReason("del");
+                    Client client = null;
+                    log.debug("delete repo {}", it.getWebUrl());
+                    try {
+                        client = getClient(repoConfig);
+                        DeleteRepositoryResponse createRepositoryResponse = client.deleteRepository(it.getId() + "", deleteRepositoryRequest);
+                    } catch (Exception e) {
+                        log.error(e.getMessage());
+                    }
+                }
+                repoList.clear();
+            }
+        });
+
+
     }
 
 }

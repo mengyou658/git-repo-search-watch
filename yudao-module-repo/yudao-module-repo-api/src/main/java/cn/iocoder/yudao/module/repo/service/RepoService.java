@@ -14,4 +14,6 @@ public interface RepoService {
     void executeSearchTaskSpider(RepoWatchTaskDO repoWatchTaskDO);
 
     void removeGitClone(RepoWatchResultDO watchResult, RepoWatchTaskDO task);
+
+    void cleanRepo();
 }

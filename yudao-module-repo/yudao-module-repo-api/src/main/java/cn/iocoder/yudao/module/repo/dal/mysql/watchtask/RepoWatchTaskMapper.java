@@ -6,6 +6,10 @@ import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.iocoder.yudao.module.repo.controller.admin.watchtask.vo.RepoWatchTaskPageReqVO;
 import cn.iocoder.yudao.module.repo.dal.dataobject.watchtask.RepoWatchTaskDO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
 
 /**
  * 仓库监控任务 Mapper
@@ -27,4 +31,6 @@ public interface RepoWatchTaskMapper extends BaseMapperX<RepoWatchTaskDO> {
                 .orderByDesc(RepoWatchTaskDO::getId));
     }
 
+    @Select("${sql}")
+    List<RepoWatchTaskDO> selectListRaw(@Param("sql") String sql);
 }
