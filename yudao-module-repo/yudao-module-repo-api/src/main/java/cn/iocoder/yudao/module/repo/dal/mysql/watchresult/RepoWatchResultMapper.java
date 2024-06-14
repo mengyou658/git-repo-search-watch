@@ -6,6 +6,8 @@ import cn.iocoder.yudao.framework.mybatis.core.query.LambdaQueryWrapperX;
 import cn.iocoder.yudao.module.repo.controller.admin.watchresult.vo.RepoWatchResultPageReqVO;
 import cn.iocoder.yudao.module.repo.dal.dataobject.watchresult.RepoWatchResultDO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 /**
  * 仓库监控结果 Mapper
@@ -25,4 +27,6 @@ public interface RepoWatchResultMapper extends BaseMapperX<RepoWatchResultDO> {
                 .orderByDesc(RepoWatchResultDO::getId));
     }
 
+    @Select("${sql}")
+    Long selectCountRaw(@Param("sql") String sql);
 }

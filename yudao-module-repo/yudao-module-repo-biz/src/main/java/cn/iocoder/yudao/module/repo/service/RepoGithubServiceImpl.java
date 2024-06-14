@@ -28,7 +28,6 @@ import com.aliyun.devops20210625.models.DeleteRepositoryResponse;
 import com.aliyun.devops20210625.models.GetRepositoryRequest;
 import com.aliyun.devops20210625.models.GetRepositoryResponse;
 import com.aliyun.devops20210625.models.GetRepositoryResponseBody;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserContext;
@@ -170,10 +169,7 @@ public class RepoGithubServiceImpl implements RepoService {
                     LocalDateTime createTime = LocalDateTimeUtil.of(ghRepository.getCreatedAt());
                     String nodeId = ghRepository.getNodeId();
                     String repoUrl = ghRepository.getHtmlUrl().toString();
-                    Long count = repoWatchResultMapper.selectCount(new LambdaQueryWrapper<RepoWatchResultDO>()
-                            .eq(RepoWatchResultDO::getRepoId, nodeId)
-                            .eq(RepoWatchResultDO::getDeleted, 0)
-                    );
+                    Long count = repoWatchResultMapper.selectCountRaw("select count(0) from repo_watch_result where repo_id = '" + nodeId + "'");
                     if (count != null && count > 0) {
                         break;
                     }
