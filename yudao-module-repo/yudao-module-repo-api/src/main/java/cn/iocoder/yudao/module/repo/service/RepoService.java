@@ -11,7 +11,7 @@ public interface RepoService {
 
     void cloneGit2AliyunCodeUp(RepoWatchResultDO result, RepoWatchTaskDO task);
 
-    void executeSearchTaskSpider(RepoWatchTaskDO repoWatchTaskDO);
+    void executeTrendingTaskSpider(RepoWatchTaskDO repoWatchTaskDO);
 
     void removeGitClone(RepoWatchResultDO watchResult, RepoWatchTaskDO task);
 

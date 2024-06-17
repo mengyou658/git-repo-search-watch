@@ -37,7 +37,7 @@ public class RepoWatchTaskSaveReqVO {
     private Integer workStatus;
 
     @Schema(description = "关键词", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotEmpty(message = "关键词不能为空")
+//    @NotEmpty(message = "关键词不能为空")
     private String keywords;
 
     @Schema(description = "开发语言：Go=Go,Rust=Rust,Javascript=Javascript,Vue=Vue,Uniapp=Uniapp")

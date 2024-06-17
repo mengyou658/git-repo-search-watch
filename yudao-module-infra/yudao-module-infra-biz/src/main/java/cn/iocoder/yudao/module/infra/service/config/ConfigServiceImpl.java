@@ -113,10 +113,10 @@ public class ConfigServiceImpl implements ConfigService {
     }
 
     @Override
-    @Cacheable(cacheNames = IOT_CONFIG_KEY, key = "#p0")
+    @Cacheable(cacheNames = IOT_CONFIG_KEY, key = "#p0", unless = "#result == null")
     public String getConfigStringByKey(String key, String defaultVal) {
         ConfigDO val = getConfigByKey(key);
-        return null != val ? val.getValue() : null;
+        return null != val ? val.getValue() : defaultVal;
     }
 
     @Override

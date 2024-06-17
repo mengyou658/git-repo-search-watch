@@ -6,7 +6,6 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.RuntimeUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.core.util.URLUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.iocoder.yudao.module.infra.service.config.ConfigService;
 import cn.iocoder.yudao.module.repo.controller.admin.RepoConfigVO;
@@ -29,8 +28,6 @@ import com.aliyun.devops20210625.models.DeleteRepositoryResponse;
 import com.aliyun.devops20210625.models.GetRepositoryRequest;
 import com.aliyun.devops20210625.models.GetRepositoryResponse;
 import com.aliyun.devops20210625.models.GetRepositoryResponseBody;
-import com.aliyun.devops20210625.models.ListGroupRepositoriesRequest;
-import com.aliyun.devops20210625.models.ListGroupRepositoriesResponse;
 import com.aliyun.devops20210625.models.ListGroupRepositoriesRequest;
 import com.aliyun.devops20210625.models.ListGroupRepositoriesResponse;
 import com.aliyun.devops20210625.models.ListGroupRepositoriesResponseBody;
@@ -307,7 +304,7 @@ public class RepoGithubServiceImpl implements RepoService {
                 Playwright playwright = Playwright.create();
                 BrowserType.LaunchOptions options = new BrowserType.LaunchOptions();
                 options.setExecutablePath(Path.of(getChromeExePath(creator)));
-                options.setHeadless(false);
+                options.setHeadless(true);
                 options.setIgnoreDefaultArgs(Arrays.asList("--enable-automation"));
                 options.setArgs(Arrays.asList("--disable-gpu", "--user-agent=\"" + userAgent + "\"", "--window-size=1920,1080", "--no-sandbox", "--disable-dev-shm-usage", "--log-level=3", "--disable-blink-features=AutomationControlled"));
                 Browser browser = playwright.chromium().launch(options);
@@ -343,7 +340,7 @@ public class RepoGithubServiceImpl implements RepoService {
 
     @Override
     @Async
-    public void executeSearchTaskSpider(RepoWatchTaskDO repoWatchTaskDO) {
+    public void executeTrendingTaskSpider(RepoWatchTaskDO repoWatchTaskDO) {
         // TODO test
         BrowserContext browserContext = initBrowserContext(repoWatchTaskDO.getCreator());
         try {
@@ -351,32 +348,32 @@ public class RepoGithubServiceImpl implements RepoService {
             Page page = browserContext.newPage();
             page.addInitScript("Object.defineProperty(navigator, 'webdriver', {get: () => undefined});");
             Page.NavigateOptions navigateOptions = new Page.NavigateOptions();
-            navigateOptions.setTimeout(10000);
+            navigateOptions.setTimeout(15000);
             navigateOptions.setWaitUntil(WaitUntilState.DOMCONTENTLOADED);
-            StringBuffer q = new StringBuffer(100);
-            String keywords = repoWatchTaskDO.getKeywords();
-            String search = StrUtil.join(" OR ", StrUtil.split(keywords, ",").stream().map(keyword -> "\"" + keyword + "\"").toList());
             String keywordLang = repoWatchTaskDO.getKeywordLang();
-//            String keywordNegative = repoWatchTaskDO.getKeywordNegative();
-//            List<String> keywordNegativeList = new ArrayList<>();
-//            if (StrUtil.isNotBlank(keywordNegative)) {
-//                keywordNegativeList = StrUtil.split(keywordNegative, ",");
-//            }
-            q.append(search);
-            q.append(" ");
-            q.append("language:");
-            q.append(keywordLang);
-            String url = String.format(getGithubHost() + "/search?q=%s&type=repositories&s=updated&o=desc", URLUtil.encode(q.toString()));
-            int pageNum = 0;
-            Integer repoLimit = repoWatchTaskDO.getRepoLimit();
-            int pageNumMax = repoLimit / 50;
-            while (pageNum <= pageNumMax) {
-                pageNum += 1;
-                boolean res = getRepo(repoWatchTaskDO, page, url, navigateOptions, pageNum);
-                if (!res) {
-                    return;
+            String keywordNegative = repoWatchTaskDO.getKeywordNegative();
+            List<String> keywordNegativeList = new ArrayList<>();
+            if (StrUtil.isNotBlank(keywordNegative)) {
+                keywordNegativeList = StrUtil.split(keywordNegative, ",");
+            }
+            String githubHost = getGithubHost();
+            if (null == githubHost) {
+                githubHost = "https://github.com";
+            }
+            String url = String.format(githubHost + "/trending");
+            List<String> langs = null;
+            if (StrUtil.isNotBlank(keywordLang)) {
+                langs = StrUtil.split(keywordLang, ",");
+            } else {
+                langs = new ArrayList<>();
+                langs.add(null);
+            }
+            List<String> sinces = Arrays.asList("daily", "weekly", "monthly");
+            for (String lang : langs) {
+                for (String since : sinces) {
+                    getRepo(repoWatchTaskDO, page, url, navigateOptions, keywordNegativeList, lang, since);
+                    Thread.sleep(2000 + RandomUtil.randomInt(100, 2000));
                 }
-                Thread.sleep(500 + RandomUtil.randomInt(100, 2000));
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -435,39 +432,56 @@ public class RepoGithubServiceImpl implements RepoService {
         }
     }
 
-    private boolean getRepo(RepoWatchTaskDO repoWatchTaskDO, Page page, String url, Page.NavigateOptions navigateOptions, int pageNum) {
-        if (pageNum > 1) {
-            url = url + "&p=" + pageNum;
+    private boolean getRepo(RepoWatchTaskDO repoWatchTaskDO, Page page, String url, Page.NavigateOptions navigateOptions, List<String> keywordNegativeList, String language, String since) {
+        if (StrUtil.isNotBlank(language)) {
+            url = url + "/" + language.toLowerCase();
         }
+        url = url + "?since=" + since;
         page.navigate(url, navigateOptions);
-        ElementHandle resultCount = page.waitForSelector("#search-results-count");
-        if (resultCount.textContent().trim().equals("0 results")) {
-            log.info("executeSearchTaskSpider no result found {} {}", repoWatchTaskDO.getName(), repoWatchTaskDO.getKeywords());
-            return false;
-        }
+        ElementHandle resultBox = page.waitForSelector(".Box");
 
         // 获取数据
-        String selector = "[data-testid=\"results-list\"]";
-        List<ElementHandle> elements = page.querySelectorAll(selector);
+        List<ElementHandle> elements = resultBox.querySelectorAll("a.Link[data-hydro-click]");
         if (CollUtil.isNotEmpty(elements)) {
+            LocalDateTime now = LocalDateTime.now();
             for (ElementHandle element : elements) {
-                String title = element.querySelector(".search-title").innerText();
-                ElementHandle elementHandle = element.querySelector(".search-match");
-                String desc = "";
-                if (elementHandle != null) {
-                    desc = elementHandle.innerText();
+                String href = element.getAttribute("href");
+                // ElementHandle langElement = element.querySelector("[itemprop=\"programmingLanguage\"]");
+                String lang = language;
+                String nodeId = href;
+                Long count = repoWatchResultMapper.selectCountRaw("select count(0) from repo_watch_result where repo_id = '" + nodeId + "'");
+                if (count != null && count > 0) {
+                    break;
                 }
-                log.debug(" {} {} executeSearchTaskSpider found {} {}", repoWatchTaskDO.getName(), repoWatchTaskDO.getKeywords(), title, desc);
-                RepoWatchResultDO.RepoWatchResultDOBuilder builder = RepoWatchResultDO.builder()
-                        .taskId(repoWatchTaskDO.getId())
-                        .repoName(title)
-                        .repoDesc(desc);
+                ElementHandle descriptionElement = element.querySelector("p.my-1");
+                String description;
+                if (null != descriptionElement) {
+                    description = descriptionElement.innerText().trim();
+                } else {
+                    description = "";
+                }
+                if (keywordNegativeList.stream().anyMatch(keyword -> href.contains(keyword) || (null != description && description.contains(keyword)))) {
+                    continue;
+                }
+                log.debug(" {} {} executeSearchTaskSpider found {} {}", repoWatchTaskDO.getName(), repoWatchTaskDO.getKeywords(), href, lang);
+                RepoWatchResultDO task = new RepoWatchResultDO();
+                task.setTaskId(repoWatchTaskDO.getId());
+                task.setRepoId(nodeId);
+                task.setRepoUrl("https://github.com" + href.substring(1));
+                task.setRepoSshUrl("git@github.com:" + href.substring(1));
+                task.setRepoName(href.substring(1));
+                task.setRepoLang(lang);
+                task.setRepoDesc(description);
+                task.setCreateTime(now);
+                task.setUpdateTime(now);
+                task.setCreator(repoWatchTaskDO.getCreator());
+                task.setUpdater(repoWatchTaskDO.getCreator());
                 if (null != repoWatchResultMapper) {
-                    repoWatchResultMapper.insert(builder.build());
+                    repoWatchResultMapper.insert(task);
                 }
             }
         } else {
-            log.info(" {} {} executeSearchTaskSpider no elements {} found", repoWatchTaskDO.getName(), repoWatchTaskDO.getKeywords(), selector);
+            log.info(" {} {} executeSearchTaskSpider no elements {} found", repoWatchTaskDO.getName(), repoWatchTaskDO.getKeywords(), "a.Link[data-hydro-click]");
             return false;
         }
         return true;

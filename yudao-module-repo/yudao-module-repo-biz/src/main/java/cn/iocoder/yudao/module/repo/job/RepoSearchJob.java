@@ -12,12 +12,10 @@ import cn.iocoder.yudao.module.repo.dal.dataobject.watchtask.RepoWatchTaskDO;
 import cn.iocoder.yudao.module.repo.dal.mysql.watchresult.RepoWatchResultMapper;
 import cn.iocoder.yudao.module.repo.service.RepoService;
 import cn.iocoder.yudao.module.repo.service.watchtask.RepoWatchTaskService;
-import cn.iocoder.yudao.module.system.enums.sms.SmsSceneEnum;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -39,6 +37,7 @@ public class RepoSearchJob implements JobHandler {
     private Boolean debugMode;
 
     private TimedCache<Long, Integer> timedCache = CacheUtil.newTimedCache(120000L);
+    private TimedCache<Long, Integer> timedCacheTrending = CacheUtil.newTimedCache(3600000L);
 
 
     @Override
@@ -57,10 +56,11 @@ public class RepoSearchJob implements JobHandler {
             for (RepoWatchTaskDO repoWatchTaskDO : list) {
                 // 这里限制非admin用户只能生成2个数据
                 String creator = repoWatchTaskDO.getCreator();
+                Long taskId = repoWatchTaskDO.getId();
                 if (!creator.equals("1")) {
                     repoWatchTaskDO.setRepoLimit(2);
                     Long count = watchResultMapper.selectCount(new LambdaQueryWrapper<RepoWatchResultDO>()
-                            .eq(RepoWatchResultDO::getTaskId, repoWatchTaskDO.getId())
+                            .eq(RepoWatchResultDO::getTaskId, taskId)
                             .eq(RepoWatchResultDO::getCreator, creator)
                     );
                     if (null != count && count >= 2) {
@@ -68,22 +68,36 @@ public class RepoSearchJob implements JobHandler {
                     }
                 }
                 try {
-                    if (timedCache.containsKey(repoWatchTaskDO.getId())) {
+                    if (timedCache.containsKey(taskId)) {
                         continue;
                     }
-                    timedCache.put(repoWatchTaskDO.getId(), 0);
+                    timedCache.put(taskId, 0);
                     Integer repoType = repoWatchTaskDO.getRepoType();
                     if (repoType == 0) {
-                        repoGithubService.executeSearchTaskApi(repoWatchTaskDO);
+                        Integer type = repoWatchTaskDO.getType();
+                        if (type == 0) {
+                             repoGithubService.executeSearchTaskApi(repoWatchTaskDO);
+                        } else {
+                            if (timedCacheTrending.containsKey(taskId)) {
+                                continue;
+                            }
+                            timedCacheTrending.put(taskId, 0);
+                            try {
+                                repoGithubService.executeTrendingTaskSpider(repoWatchTaskDO);
+                            } catch (Exception e) {
+                                log.error("RepoSearchJob " + e.getMessage());
+                                timedCacheTrending.remove(taskId);
+                            }
+                        }
                     } else {
-                        // TODO 其他类型
+                        // 其他类型
                         log.error("RepoSearchJob 暂不支持该类型 {}", repoType);
                     }
-                    timedCache.remove(repoWatchTaskDO.getId());
+                    timedCache.remove(taskId);
                     Thread.sleep(1000, RandomUtil.randomInt(200, 2000));
                 } catch (Exception e) {
                     log.error("RepoSearchJob " + e.getMessage());
-                    timedCache.remove(repoWatchTaskDO.getId());
+                    timedCache.remove(taskId);
                 }
             }
         }

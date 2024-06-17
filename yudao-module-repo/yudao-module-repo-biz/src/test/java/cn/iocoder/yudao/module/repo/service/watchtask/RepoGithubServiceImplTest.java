@@ -18,7 +18,7 @@ class RepoGithubServiceImplTest {
         vo.setStatus(0);
         vo.setWorkStatus(0);
         vo.setKeywords("language:Go");
-        repoWatchTaskService.executeSearchTaskSpider(vo);
+        repoWatchTaskService.executeTrendingTaskSpider(vo);
 
     }
     @Test
