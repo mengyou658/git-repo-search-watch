@@ -7,7 +7,10 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.RuntimeUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpUtil;
 import cn.iocoder.yudao.module.infra.service.config.ConfigService;
+import cn.iocoder.yudao.module.repo.controller.admin.RepoBaiduKaifaTrendingVO;
 import cn.iocoder.yudao.module.repo.controller.admin.RepoConfigVO;
 import cn.iocoder.yudao.module.repo.controller.admin.RepoListVO;
 import cn.iocoder.yudao.module.repo.dal.dataobject.watchconfig.RepoWatchConfigDO;
@@ -287,6 +290,94 @@ public class RepoGithubServiceImpl implements RepoService {
                         .set(RepoWatchResultDO::getRepoLocalClone, "https://codeup.aliyun.com/" + repoConfig.getAliyunCloneNamespaceId() + "/" + result.getRepoName())
                 );
             }
+        }
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void executeTrendingTaskApi(RepoWatchTaskDO repoWatchTaskDO) {
+        try {
+            GitHub gitHub = initGithub(repoWatchTaskDO.getCreator());
+            if (null == gitHub) {
+                log.warn("executeTrendingTaskApi api init error");
+                return;
+            }
+            Integer total = repoWatchTaskDO.getRepoLimit();
+            if (null == total) {
+                total = 50;
+            }
+            String keywordLang = repoWatchTaskDO.getKeywordLang();
+            String keywordNegative = repoWatchTaskDO.getKeywordNegative();
+            List<String> keywordNegativeList = new ArrayList<>();
+            if (StrUtil.isNotBlank(keywordNegative)) {
+                keywordNegativeList = StrUtil.split(keywordNegative, ",");
+            }
+//            https://kaifa.baidu.com/rest/v1/home/github?optionLanguage=&optionSince=
+            List<String> langs = null;
+            if (StrUtil.isNotBlank(keywordLang)) {
+                langs = StrUtil.split(keywordLang, ",");
+            } else {
+                langs = new ArrayList<>();
+                langs.add(null);
+            }
+            List<String> sinces = Arrays.asList("DAILY", "WEEKLY", "MONTHLY");
+            for (String lang : langs) {
+                for (String since : sinces) {
+                    String url = String.format("https://kaifa.baidu.com/rest/v1/home/github?optionLanguage=%s&optionSince=%s", lang, since);
+                    try {
+                        String resp = HttpRequest.get(url)
+                                .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0")
+                                .header("Referer", "https://kaifa.baidu.com/")
+                                .timeout(10000)
+                                .execute().body();
+                        log.debug("executeTrendingTaskApi res {} {}", url, resp);
+                        RepoBaiduKaifaTrendingVO respVo = JSON.parseObject(resp, RepoBaiduKaifaTrendingVO.class);
+                        List<RepoWatchResultDO> taskList = new ArrayList<>();
+                        if (respVo.getStatus().equals("OK")) {
+                            LocalDateTime now = LocalDateTime.now();
+                            List<RepoBaiduKaifaTrendingVO.DataDTO.TrendingListDTO> trendingList = respVo.getData().getTrendingList();
+                            for (RepoBaiduKaifaTrendingVO.DataDTO.TrendingListDTO repo : trendingList) {
+                                String nodeId = repo.getId()+"";
+                                String repoUrl = repo.getUrl();
+                                Long count = repoWatchResultMapper.selectCountRaw("select count(0) from repo_watch_result where repo_id = '" + nodeId + "'");
+                                if (count != null && count > 0) {
+                                    break;
+                                }
+                                String description = repo.getSummary();
+                                if (keywordNegativeList.stream().anyMatch(keyword -> repo.getTitle().contains(keyword) || (null != description && description.contains(keyword)))) {
+                                    continue;
+                                }
+                                RepoWatchResultDO task = new RepoWatchResultDO();
+                                task.setTaskId(repoWatchTaskDO.getId());
+                                task.setRepoId(nodeId);
+                                task.setRepoUrl(repoUrl);
+                                task.setRepoLang(repo.getLanguage());
+                                task.setRepoSshUrl("git@github.com:" + repo.getTitle());
+                                task.setRepoName(repo.getTitle());
+                                task.setRepoDesc(description);
+                                task.setCreateTime(now);
+                                task.setUpdateTime(now);
+                                task.setCreator(repoWatchTaskDO.getCreator());
+                                task.setUpdater(repoWatchTaskDO.getCreator());
+                                taskList.add(task);
+                            }
+                        } else {
+                            log.warn("executeTrendingTaskApi {}", respVo.getMessage());
+                        }
+
+                        if (CollUtil.isNotEmpty(taskList)) {
+                            repoWatchResultMapper.insertBatch(taskList);
+                        }
+                    } catch (Exception e) {
+                        log.error("executeTrendingTaskApi " + e.getMessage());
+                    }
+
+                    Thread.sleep(2000 + RandomUtil.randomInt(100, 2000));
+                }
+            }
+
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
         }
     }
 

@@ -83,7 +83,7 @@ public class RepoSearchJob implements JobHandler {
                             }
                             timedCacheTrending.put(taskId, 0);
                             try {
-                                repoGithubService.executeTrendingTaskSpider(repoWatchTaskDO);
+                                repoGithubService.executeTrendingTaskApi(repoWatchTaskDO);
                             } catch (Exception e) {
                                 log.error("RepoSearchJob " + e.getMessage());
                                 timedCacheTrending.remove(taskId);
