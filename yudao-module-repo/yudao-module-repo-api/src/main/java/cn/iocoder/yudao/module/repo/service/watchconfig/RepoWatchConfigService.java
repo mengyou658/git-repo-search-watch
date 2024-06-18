@@ -2,6 +2,7 @@ package cn.iocoder.yudao.module.repo.service.watchconfig;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.infra.controller.admin.config.vo.ConfigSaveSimpleReqVO;
+import cn.iocoder.yudao.module.repo.controller.admin.RepoConfigVO;
 import cn.iocoder.yudao.module.repo.controller.admin.watchconfig.vo.RepoWatchConfigPageReqVO;
 import cn.iocoder.yudao.module.repo.controller.admin.watchconfig.vo.RepoWatchConfigSaveReqVO;
 import cn.iocoder.yudao.module.repo.controller.admin.watchconfig.vo.RepoWatchConfigSaveSimpleReqVO;
@@ -88,4 +89,6 @@ public interface RepoWatchConfigService extends IService<RepoWatchConfigDO> {
     RepoWatchConfigDO getConfigByKey(String key, Long loginUserId);
 
     Long saveConfig(RepoWatchConfigSaveSimpleReqVO createReqVO);
+
+    RepoConfigVO getRepoConfig(String creator);
 }

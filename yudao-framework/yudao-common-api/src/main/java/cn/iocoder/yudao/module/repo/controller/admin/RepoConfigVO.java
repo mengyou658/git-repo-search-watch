@@ -9,6 +9,10 @@ public class RepoConfigVO {
 
     private List<RepoConfig> repoConfigs;
 
+    private String proxyHost;
+
+    private int proxyPort;
+
     private String localClonePath;
 
     private String aliyunCloneAk;

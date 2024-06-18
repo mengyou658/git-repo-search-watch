@@ -1,10 +1,18 @@
 package cn.iocoder.yudao.framework.common.util.http;
 
 import cn.hutool.core.codec.Base64;
+import cn.hutool.core.io.FastByteArrayOutputStream;
+import cn.hutool.core.io.StreamProgress;
+import cn.hutool.core.lang.Assert;
 import cn.hutool.core.map.TableMap;
 import cn.hutool.core.net.url.UrlBuilder;
+import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpException;
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
+import cn.hutool.http.HttpUtil;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -122,5 +130,41 @@ public class HttpUtils {
         return null;
     }
 
+    public static String downloadString(String url, int timeout) {
+        final FastByteArrayOutputStream out = new FastByteArrayOutputStream();
+        requestDownload(url, timeout, null, 0).writeBody(out, true, null);
+        return out.toString(CharsetUtil.UTF_8);
+    }
 
+    public static String downloadString(String url, int timeout, String proxyHost, int proxyPort) {
+        final FastByteArrayOutputStream out = new FastByteArrayOutputStream();
+        requestDownload(url, timeout, proxyHost, proxyPort).writeBody(out, true, null);
+        return out.toString(CharsetUtil.UTF_8);
+    }
+
+    /**
+     * 请求下载文件
+     *
+     * @param url     请求下载文件地址
+     * @param timeout 超时时间
+     * @return HttpResponse
+     * @since 5.4.1
+     */
+    private static HttpResponse requestDownload(String url, int timeout, String proxyHost, int proxyPort) {
+        Assert.notBlank(url, "[url] is blank !");
+
+        HttpRequest request = HttpUtil.createGet(url, true)
+                .timeout(timeout);
+        if (StrUtil.isNotBlank(proxyHost)) {
+            request.setHttpProxy(proxyHost, proxyPort);
+        }
+        final HttpResponse response = request
+                .executeAsync();
+
+        if (response.isOk()) {
+            return response;
+        }
+
+        throw new HttpException("Server response error with status code: [{}]", response.getStatus());
+    }
 }

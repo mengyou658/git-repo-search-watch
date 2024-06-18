@@ -94,34 +94,13 @@ public class RepoGithubServiceImpl implements RepoService {
 
     private Browser browserGlobal;
 
-    public RepoConfigVO getRepoConfig(String creator) {
-        RepoConfigVO defaultVal = new RepoConfigVO();
-        defaultVal.setChromeExePath("C:\\Users\\Administrator\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe");
-        defaultVal.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36");
-        defaultVal.setLocalClonePath("F:\\github-repo-clone");
-        defaultVal.setAliyunCloneAk("");
-        defaultVal.setAliyunCloneSk("");
-        defaultVal.setAliyunCloneOrganizationId("");
-        defaultVal.setAliyunCloneNamespaceId(0L);
-        ArrayList<RepoConfigVO.RepoConfig> repoConfigs = new ArrayList<>();
-        RepoConfigVO.RepoConfig e = new RepoConfigVO.RepoConfig();
-        e.setRepoType(0);
-        e.setUsername("");
-        e.setPassword("");
-        repoConfigs.add(e);
-        defaultVal.setRepoConfigs(repoConfigs);
-
-        RepoWatchConfigDO configByKey = repoWatchConfigService.getConfigByKey("repo.config", Long.parseLong(creator));
-        return configByKey != null && configByKey.getValue() != null ? JSON.parseObject(configByKey.getValue(), RepoConfigVO.class) : defaultVal;
-    }
-
     private GitHub initGithub(String creator) {
         if (null != gitHubGlobal) {
             return gitHubGlobal;
         }
         GitHub github = null;
         try {
-            RepoConfigVO.RepoConfig repoConf = getRepoConfig(creator).getRepoConfigs().stream().filter(e -> e.getRepoType() == 0).findAny().get();
+            RepoConfigVO.RepoConfig repoConf = repoWatchConfigService.getRepoConfig(creator).getRepoConfigs().stream().filter(e -> e.getRepoType() == 0).findAny().get();
             HttpLoggingInterceptor logging = new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC);
             github = new GitHubBuilder()
                     .withPassword(repoConf.getUsername(), repoConf.getPassword())
@@ -226,7 +205,7 @@ public class RepoGithubServiceImpl implements RepoService {
     @Override
     public void cloneGit2Local(RepoWatchResultDO result, RepoWatchTaskDO task) {
         try {
-            String localClonePath = getRepoConfig(result.getCreator()).getLocalClonePath();
+            String localClonePath = repoWatchConfigService.getRepoConfig(result.getCreator()).getLocalClonePath();
 
             File file = Path.of(localClonePath, task.getName(), result.getRepoName().replaceAll("/", "--")).toFile();
             if (!file.exists()) {
@@ -248,7 +227,7 @@ public class RepoGithubServiceImpl implements RepoService {
 
     @Override
     public void cloneGit2AliyunCodeUp(RepoWatchResultDO result, RepoWatchTaskDO task) {
-        RepoConfigVO repoConfig = getRepoConfig(result.getCreator());
+        RepoConfigVO repoConfig = repoWatchConfigService.getRepoConfig(result.getCreator());
         String repoName = result.getRepoName().replace("/", "--");
         try {
             com.aliyun.teaopenapi.models.Config config = new com.aliyun.teaopenapi.models.Config()
@@ -390,7 +369,7 @@ public class RepoGithubServiceImpl implements RepoService {
             return browserContextGlobal;
         }
         try {
-            String userAgent = getRepoConfig(creator).getUserAgent();
+            String userAgent = repoWatchConfigService.getRepoConfig(creator).getUserAgent();
             if (null == browserGlobal) {
                 Playwright playwright = Playwright.create();
                 BrowserType.LaunchOptions options = new BrowserType.LaunchOptions();
@@ -415,7 +394,7 @@ public class RepoGithubServiceImpl implements RepoService {
     }
 
     private String getChromeExePath(String creator) {
-        return getRepoConfig(creator).getChromeExePath();
+        return repoWatchConfigService.getRepoConfig(creator).getChromeExePath();
     }
 
     private void deInitBrowserContext() {
@@ -485,7 +464,7 @@ public class RepoGithubServiceImpl implements RepoService {
                 FileUtil.del(repoLocalClone);
             } else {
                 try {
-                    RepoConfigVO repoConfig = getRepoConfig(watchResult.getCreator());
+                    RepoConfigVO repoConfig = repoWatchConfigService.getRepoConfig(watchResult.getCreator());
                     com.aliyun.teaopenapi.models.Config config = new com.aliyun.teaopenapi.models.Config()
                             .setAccessKeyId(repoConfig.getAliyunCloneAk())
                             .setAccessKeySecret(repoConfig.getAliyunCloneSk())
@@ -585,7 +564,7 @@ public class RepoGithubServiceImpl implements RepoService {
         for (RepoWatchTaskDO taskDO : taskDOS) {
             try {
                 String creator = taskDO.getCreator();
-                RepoConfigVO repoConfig = getRepoConfig(creator);
+                RepoConfigVO repoConfig = repoWatchConfigService.getRepoConfig(creator);
                 RepoListVO res = new RepoListVO();
                 res.setTask(taskDO);
                 res.setRepoConfig(repoConfig);

@@ -8,12 +8,14 @@ import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.framework.excel.core.excel.ExcelImport;
 import cn.iocoder.yudao.framework.mybatis.core.util.MyBatisUtils;
 import cn.iocoder.yudao.framework.security.core.util.SecurityFrameworkUtils;
+import cn.iocoder.yudao.module.repo.controller.admin.RepoConfigVO;
 import cn.iocoder.yudao.module.repo.controller.admin.watchconfig.vo.RepoWatchConfigPageReqVO;
 import cn.iocoder.yudao.module.repo.controller.admin.watchconfig.vo.RepoWatchConfigRespVO;
 import cn.iocoder.yudao.module.repo.controller.admin.watchconfig.vo.RepoWatchConfigSaveReqVO;
 import cn.iocoder.yudao.module.repo.controller.admin.watchconfig.vo.RepoWatchConfigSaveSimpleReqVO;
 import cn.iocoder.yudao.module.repo.dal.dataobject.watchconfig.RepoWatchConfigDO;
 import cn.iocoder.yudao.module.repo.dal.mysql.watchconfig.RepoWatchConfigMapper;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -26,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static cn.iocoder.yudao.module.repo.enums.ErrorCodeConstants.WATCH_CONFIG_IMPORT_FAIL;
@@ -193,6 +196,28 @@ public class RepoWatchConfigServiceImpl extends ServiceImpl<RepoWatchConfigMappe
             }
         }
         return 0L;
+    }
+
+    @Override
+    public RepoConfigVO getRepoConfig(String creator) {
+        RepoConfigVO defaultVal = new RepoConfigVO();
+        defaultVal.setChromeExePath("C:\\Users\\Administrator\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe");
+        defaultVal.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36");
+        defaultVal.setLocalClonePath("F:\\github-repo-clone");
+        defaultVal.setAliyunCloneAk("");
+        defaultVal.setAliyunCloneSk("");
+        defaultVal.setAliyunCloneOrganizationId("");
+        defaultVal.setAliyunCloneNamespaceId(0L);
+        ArrayList<RepoConfigVO.RepoConfig> repoConfigs = new ArrayList<>();
+        RepoConfigVO.RepoConfig e = new RepoConfigVO.RepoConfig();
+        e.setRepoType(0);
+        e.setUsername("");
+        e.setPassword("");
+        repoConfigs.add(e);
+        defaultVal.setRepoConfigs(repoConfigs);
+
+        RepoWatchConfigDO configByKey = getConfigByKey("repo.config", Long.parseLong(creator));
+        return configByKey != null && configByKey.getValue() != null ? JSON.parseObject(configByKey.getValue(), RepoConfigVO.class) : defaultVal;
     }
 
 }

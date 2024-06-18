@@ -1,44 +1,53 @@
 package cn.iocoder.yudao.module.repo.controller.admin.watchresult;
 
-import org.springframework.web.bind.annotation.*;
-import jakarta.annotation.Resource;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.security.access.prepost.PreAuthorize;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.Parameters;
-import io.swagger.v3.oas.annotations.Operation;
-
-import jakarta.validation.constraints.*;
-import jakarta.validation.*;
-import jakarta.servlet.http.*;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import java.util.*;
-import java.time.LocalDateTime;
-import static cn.iocoder.yudao.framework.common.util.date.DateUtils.FORMAT_YEAR_MONTH_DAY_HOUR_MINUTE_SECOND;
-import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
-
-import java.io.IOException;
-import lombok.extern.slf4j.Slf4j;
-
+import cn.hutool.core.util.CharsetUtil;
+import cn.hutool.http.HttpUtil;
+import cn.iocoder.yudao.framework.apilog.core.annotation.ApiAccessLog;
+import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.framework.common.pojo.PageParam;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
-import cn.iocoder.yudao.framework.common.pojo.CommonResult;
-import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
-import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
-
-import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
-
-import cn.iocoder.yudao.framework.apilog.core.annotation.ApiAccessLog;
-import static cn.iocoder.yudao.framework.apilog.core.enums.OperateTypeEnum.*;
+import cn.iocoder.yudao.framework.common.util.http.HttpUtils;
 import cn.iocoder.yudao.framework.common.util.lang.DateUtils;
+import cn.iocoder.yudao.framework.common.util.object.BeanUtils;
 import cn.iocoder.yudao.framework.excel.core.excel.ExcelExport;
-import cn.iocoder.yudao.module.repo.controller.admin.watchresult.vo.*;
-import cn.iocoder.yudao.module.repo.controller.admin.watchresult.vo.*;
+import cn.iocoder.yudao.framework.excel.core.util.ExcelUtils;
+import cn.iocoder.yudao.module.infra.service.config.ConfigService;
+import cn.iocoder.yudao.module.repo.controller.admin.RepoConfigVO;
+import cn.iocoder.yudao.module.repo.controller.admin.watchresult.vo.RepoWatchResultPageReqVO;
+import cn.iocoder.yudao.module.repo.controller.admin.watchresult.vo.RepoWatchResultRespVO;
+import cn.iocoder.yudao.module.repo.controller.admin.watchresult.vo.RepoWatchResultSaveReqVO;
+import cn.iocoder.yudao.module.repo.controller.admin.watchresult.vo.RepoWatchResultUpdateStatusReqVO;
+import cn.iocoder.yudao.module.repo.dal.dataobject.watchconfig.RepoWatchConfigDO;
 import cn.iocoder.yudao.module.repo.dal.dataobject.watchresult.RepoWatchResultDO;
+import cn.iocoder.yudao.module.repo.service.watchconfig.RepoWatchConfigService;
 import cn.iocoder.yudao.module.repo.service.watchresult.RepoWatchResultService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
+import jakarta.annotation.security.PermitAll;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static cn.iocoder.yudao.framework.apilog.core.enums.OperateTypeEnum.EXPORT;
+import static cn.iocoder.yudao.framework.apilog.core.enums.OperateTypeEnum.IMPORT;
+import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 
 @Tag(name = "管理后台 - 仓库监控结果")
 @RestController
@@ -49,6 +58,9 @@ public class RepoWatchResultController {
 
     @Resource
     private RepoWatchResultService repoWatchResultService;
+
+    @Resource
+    private RepoWatchConfigService repoWatchConfigService;
 
     @PostMapping("/create")
     @Operation(summary = "创建仓库监控结果")
@@ -180,6 +192,37 @@ public class RepoWatchResultController {
         } catch (Exception ex) {
             return success(ex.getMessage(), null);
         }
+    }
+
+    /**
+     * 导入数据
+     */
+    @Operation(summary = "github Readme")
+    @GetMapping(value = "githubReadme")
+    @PermitAll
+    public String githubReadme(RepoWatchResultPageReqVO reqVO, HttpServletResponse response) {
+//        String url = "https://mirror.ghproxy.com/https://raw.githubusercontent.com/" + reqVO.getRepoName() + "/main/README.md";
+//        String url = "https://github.com/" + reqVO.getRepoName() + "/raw/main/README.md";
+        RepoWatchResultDO watchResult = repoWatchResultService.getWatchResult(reqVO.getId());
+        RepoConfigVO config = repoWatchConfigService.getRepoConfig(watchResult.getCreator());
+        String url = "https://raw.githubusercontent.com/" + reqVO.getRepoName() + "/main/README.md";
+        try {
+            log.debug("githubReadme {}", url);
+            return HttpUtils.downloadString(url, 10000, config.getProxyHost(), config.getProxyPort());
+//            HttpDownloader.download(url, response.getOutputStream(), true, null);
+        } catch (Exception ex) {
+            log.error("githubReadme " + ex.getMessage());
+            try {
+//                url = "https://github.com/" + reqVO.getRepoName() + "/raw/master/README.md";
+                url = "https://raw.githubusercontent.com/" + reqVO.getRepoName() + "/master/README.md";
+                log.debug("githubReadme {}", url);
+                return HttpUtils.downloadString(url, 10000, config.getProxyHost(), config.getProxyPort());
+//                HttpDownloader.download(url, response.getOutputStream(), true, null);
+            } catch (Exception e) {
+                log.error("githubReadme " + e.getMessage());
+            }
+        }
+        return "";
     }
 
 }
