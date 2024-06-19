@@ -63,10 +63,10 @@ public class DictDataApiImpl implements DictDataApi {
             List<String> dictValueList = new ArrayList<>();
             if (CollUtil.isNotEmpty(dictDataListByDictType)) {
                 dictValueList = dictDataListByDictType.stream().filter(it->it.getCreator().equals(loginUserId))
-                        .map(it->it.getValue().toLowerCase()).toList();
+                        .map(DictDataDO::getValue).toList();
             }
             List<String> finalDictValueList = dictValueList;
-            dictValues.removeIf(dict -> finalDictValueList.contains(dict.toLowerCase()));
+            dictValues.removeIf(finalDictValueList::contains);
             for (String dictValue : dictValues) {
                 DictDataDO dictDataSaveReqVO = new DictDataDO();
                 dictDataSaveReqVO.setSort(0);
