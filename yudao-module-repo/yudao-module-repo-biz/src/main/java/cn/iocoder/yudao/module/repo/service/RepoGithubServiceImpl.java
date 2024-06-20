@@ -130,8 +130,13 @@ public class RepoGithubServiceImpl implements RepoService {
             if (null == total) {
                 total = 50;
             }
-            String keywords = repoWatchTaskDO.getKeywords();
-            String search = StrUtil.join(" OR ", StrUtil.split(keywords, ",").stream().map(keyword -> "\"" + keyword + "\"").toList());
+            String keyword = repoWatchTaskDO.getKeywords();
+            List<String> keywords = StrUtil.split(keyword, ",");
+            // 关键词
+            List<String> keywordList = keywords.stream().filter(w -> !StrUtil.isBlank(w) && !w.contains(":")).map(w -> "\"" + w + "\"").toList();
+            String search = StrUtil.join(" OR ", keywordList);
+            // 特殊，比如in:等，代分号:
+            search += " " + StrUtil.join(" ", keywords.stream().filter(w -> !StrUtil.isBlank(w) && w.contains(":")).toList());
             String keywordLang = repoWatchTaskDO.getKeywordLang();
             String keywordNegative = repoWatchTaskDO.getKeywordNegative();
             List<String> keywordNegativeList = new ArrayList<>();
