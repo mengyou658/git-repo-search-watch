@@ -1,7 +1,7 @@
 ## 项目描述
 通过github api搜索仓库，根据关键词，开发语言，过滤关键词，定时搜索最新提交仓库，并clone到本地或者阿里云codeup。
 ## 依赖版本
-1. jdk17以上
+1. jdk>=17
 2. vue3
 2. nodejs>=18.17.1
 ## 项目地址
@@ -21,13 +21,14 @@ test/123456
 2. 搜索结果管理，显示搜索结果，访问仓库，访问codeup仓库
 3. 仓库配置，配置仓库的clone地址，clone到本地或者阿里云codeup，配置秘钥，配置开发
 4. 定时搜索任务，定时clone到本地或者阿里云codeup
+5. **github trending 抓取**
+6. **自动更新github dns ip至hosts**
 ## 截图
 1. ![仓库配置.png](/image/仓库配置.png)
 2. ![仓库监控.png](/image/仓库监控.png)
 3. ![监控结果.png](/image/监控结果.png)
 4. ![定时任务.png](/image/定时任务.png)
 ## TODO 
-1. TODO github trending 抓取
 2. TODO 其他仓库搜索抓取，比如gitee，gitlab等
 3. TODO 其他待补充
 ## 第三方接口说明
