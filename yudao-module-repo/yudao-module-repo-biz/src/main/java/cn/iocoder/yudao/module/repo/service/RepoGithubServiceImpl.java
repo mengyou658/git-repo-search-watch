@@ -130,13 +130,13 @@ public class RepoGithubServiceImpl implements RepoService {
             if (null == total) {
                 total = 50;
             }
-            String keyword = repoWatchTaskDO.getKeywords();
-            List<String> keywords = StrUtil.split(keyword, ",");
+            String keywords = repoWatchTaskDO.getKeywords();
+            List<String> keywordsList = StrUtil.split(keywords, ",");
             // 关键词
-            List<String> keywordList = keywords.stream().filter(w -> !StrUtil.isBlank(w) && !w.contains(":")).map(w -> "\"" + w + "\"").toList();
+            List<String> keywordList = keywordsList.stream().filter(w -> !StrUtil.isBlank(w) && !w.contains(":")).map(w -> "\"" + w + "\"").toList();
             String search = StrUtil.join(" OR ", keywordList);
             // 特殊，比如in:等，代分号:
-            search += " " + StrUtil.join(" ", keywords.stream().filter(w -> !StrUtil.isBlank(w) && w.contains(":")).toList());
+            search += " " + StrUtil.join(" ", keywordsList.stream().filter(w -> !StrUtil.isBlank(w) && w.contains(":")).toList());
             String keywordLang = repoWatchTaskDO.getKeywordLang();
             String keywordNegative = repoWatchTaskDO.getKeywordNegative();
             List<String> keywordNegativeList = new ArrayList<>();
@@ -167,7 +167,7 @@ public class RepoGithubServiceImpl implements RepoService {
                         break;
                     }
                     String description = ghRepository.getDescription();
-                    if (keywordNegativeList.stream().anyMatch(keyword -> ghRepository.getFullName().contains(keyword) || (null != description && description.contains(keyword)))) {
+                    if (keywordNegativeList.stream().anyMatch(keyword -> ghRepository.getFullName().toLowerCase().contains(keyword) || (null != description && description.toLowerCase().contains(keyword)))) {
                         continue;
                     }
                     RepoWatchResultDO task = new RepoWatchResultDO();
