@@ -23,6 +23,9 @@ test/123456
 4. 定时搜索任务，定时clone到本地或者阿里云codeup
 5. **github trending 抓取**
 6. **自动更新github dns ip至hosts**
+6. **github 仓库readme展示**
+6. **增加标签和归档**
+6. **TODO 增加获取star数**
 ## 截图
 1. ![仓库配置.png](/image/仓库配置.png)
 2. ![仓库监控.png](/image/仓库监控.png)
