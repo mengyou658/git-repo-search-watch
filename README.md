@@ -10,7 +10,7 @@
 [前段https://github.com/mengyou658/git-repo-search-watch-ui](https://github.com/mengyou658/git-repo-search-watch-ui)
 
 ## 演示地址
-http://gitclone.16688.online:28001/#/repo-watch-task
+http://gitclone.16688.online/#/repo-watch-task
 
 test/123456
 
