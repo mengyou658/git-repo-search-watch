@@ -17,9 +17,13 @@ test/123456
 2. vue3
 2. nodejs>=18.17.1
 ## 项目地址
-[后端https://github.com/mengyou658/git-repo-search-watch](https://github.com/mengyou658/git-repo-search-watch)
+[【后端】【github】 https://github.com/mengyou658/git-repo-search-watch](https://github.com/mengyou658/git-repo-search-watch)
 
-[前段https://github.com/mengyou658/git-repo-search-watch-ui](https://github.com/mengyou658/git-repo-search-watch-ui)
+[【后端】【gitee】 https://gitee.com/mengyou/git-repo-search-watch](https://gitee.com/mengyou/git-repo-search-watch)
+
+[【前段】【github】 https://github.com/mengyou658/git-repo-search-watch-ui](https://github.com/mengyou658/git-repo-search-watch-ui)
+
+[【前段】【gitee】 https://gitee.com/mengyou/git-repo-search-watch-ui](https://gitee.com/mengyou/git-repo-search-watch-ui)
 
 ## 现有功能
 1. 搜索任务管理，设置搜索关键词，开发语言，过滤关键词，定时搜索，定时clone到本地或者阿里云codeup
